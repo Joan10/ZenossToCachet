@@ -22,12 +22,12 @@ xml_string = treu_events_grup_xml.treu_events_grup_xml('/zport/dmd/Groups/servei
 root = ET.fromstring(xml_string)
 
 # SERVIDORS PROVA
-st = api_stashboard_panell_v2.api_stashboard_panell("http://10.80.87.76","TGUTJqjJ6GXlTndt27hP");
-st2 = api_stashboard_panell_v2.api_stashboard_panell("http://10.80.87.76:9080","2I8GMpbCfL1lyqqK2Rlo");
+#st = api_stashboard_panell_v2.api_stashboard_panell("http://10.80.87.76","TGUTJqjJ6GXlTndt27hP");
+#st2 = api_stashboard_panell_v2.api_stashboard_panell("http://10.80.87.76:9080","2I8GMpbCfL1lyqqK2Rlo");
 
 # SERVIDORS PRODUCCIO
-#st = api_stashboard_panell_v2.api_stashboard_panell("http://panell-estats-cti.sint.uib.es:8080","TGUTJqjJ6GXlTndt27hP");# Exclusiu del CTI 
-#st2 = api_stashboard_panell_v2.api_stashboard_panell("http://panell-estats.sint.uib.es:8080","HISEU50ehqdi86Imehlw");# Public
+st = api_stashboard_panell_v2.api_stashboard_panell("http://panell-estats-cti.sint.uib.es:8080","TGUTJqjJ6GXlTndt27hP");# Exclusiu del CTI 
+st2 = api_stashboard_panell_v2.api_stashboard_panell("http://panell-estats.sint.uib.es:8080","HISEU50ehqdi86Imehlw");# Public
 
 zp=ZenossAPI.ZenossAPI()
 
