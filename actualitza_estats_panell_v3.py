@@ -8,7 +8,7 @@
 #
 
 import sys
-sys.path.append("/home/stashboard/panell_serveis_critics_v3/API/")
+sys.path.append("/home/stashboard/panell_serveis_critics_dev/ZenossToCachet/API/")
 
 import treu_events_grup_xml
 import api_stashboard_panell_v2 #Stashboard extens
