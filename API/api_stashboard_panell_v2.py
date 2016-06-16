@@ -215,7 +215,6 @@ class api_stashboard_panell:
                 append_url="/api/v1/incidents"
                 r = requests.post(self.base_url+append_url, data=data, headers=self.headers, verify=self.VER)
 
-<<<<<<< HEAD
 	def ReportaSchedule(self, nom, missatge, date):
 	#
 	# Totalment diferent. En aquest cas feim una crida al sistema per executar un script que prepara un webinject. Per tant, l'afegito
@@ -225,9 +224,8 @@ class api_stashboard_panell:
 	# date: data d'inici del manteniment. Format DD/MM/YYYY HH:MM
 	#
 		comanda="/bin/bash "+MAIN_PATH+"API/webinject/webinject0.sh "+self.base_url+" \""+nom+"\" \""+missatge+"\" \""+date+"\""
-		print comanda
 		return Popen(comanda, stdout=PIPE, shell=True)
-=======
+
  	def eliminaIncident(self, id):
 	#Retorna l'estat del servei: up o down.
 		append_url="/api/v1/incidents/"+str(id)
@@ -285,8 +283,6 @@ class api_stashboard_panell:
 		# Wrapper d'ActualitzaEstatDispositiu
 		self.ActualitzaEstatDispositiu(nom,missatge,"perf")
 
-
->>>>>>> a059666753770c2ebf65b953fc57f870e5f797b0
 
 	def CreaServei(self, nom, descripcio):
 	#Crea el servei o l'actualitza si ja existeix		
