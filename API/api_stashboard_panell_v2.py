@@ -60,35 +60,6 @@ class api_stashboard_panell:
 		except:
 			return "null" # Retornam null si no existeix.
 		return "null"		
- 
-	###################################
-	#
-	# FUNCIONS DE INCIDENTS
-	#
-	###################################
-	def treuIncidentIdFromNameAndMsg(self, cid, msg):
-		#
-		# Treu l'identificador de l'incident que correspon al component passat mitjançant ID i 
-		# que coincideix amb el missatge passat.
-		# cid: Component ID al qual pertany l'incident
-		# msg: El cos del missatge de l'incident ha de coincidir
-		#
-	        append_url="/api/v1/incidents"
-
-                r = requests.get(self.base_url+append_url, headers=self.headers, verify=self.VER)
-		try:
-			while r != None:
-                        # Iteram per tots els incidents fins trobar el que conicideix el nom i cid amb el passat per 
-                        # paràmetre
-
-				for inc in json.loads(r.text)['data']:
-					if cid == inc["component_id"] and msg == inc["message"]:
-						return inc["id"]
-				r = requests.get(json.loads(r.text)['meta']['pagination']['links']['next_page'], headers=self.headers, verify=self.VER)
-		except:
-			return "null"		
-		return "null"		
-
 
 	def componentEnManteniment(self,cid):
 
@@ -137,6 +108,137 @@ class api_stashboard_panell:
                 append_url="/api/v1/components/"+str(cid)
                 r2 = requests.put(self.base_url+append_url, data=data, headers=self.headers, verify=self.VER)
 
+	def TombaComponent(self, id):
+		# Posa component amb id passat a l'estat de DOWN
+                data = json.dumps({"id":id, "status":4})
+                append_url="/api/v1/components/"+str(id)
+                r = requests.put(self.base_url+append_url, data=data, headers=self.headers, verify=self.VER)
+
+	def AixecaComponent(self, id):
+		# Posa component amb id passat a l'estat de UP
+                data = json.dumps({"id":id, "status":1})
+                append_url="/api/v1/components/"+str(id)
+                r = requests.put(self.base_url+append_url, data=data, headers=self.headers, verify=self.VER)
+
+	def ReportaComponent(self, id):
+		# Posa component amb id passat a l'estat de problemes de performance
+                data = json.dumps({"id":id, "status":2})
+                append_url="/api/v1/components/"+str(id)
+                r = requests.put(self.base_url+append_url, data=data, headers=self.headers, verify=self.VER)
+
+ 
+	def getNomComponent(self,id):
+                append_url="/api/v1/components/"+str(id)
+                r = requests.get(self.base_url+append_url,  headers=self.headers, verify=self.VER)
+		return json.loads(r.text)['data']['name']
+
+
+	def setNomComponent(self,id,nom):
+        # Set nom dispositiu
+                data = json.dumps({"id":id, "name":nom, "status":self.getStatusFromId(id)})
+                append_url="/api/v1/components/"+str(id)
+                r = requests.put(self.base_url+append_url, data=data, headers=self.headers, verify=self.VER)
+
+
+	def getDescComponent(self,id):
+                append_url="/api/v1/components/"+str(id)
+                r = requests.get(self.base_url+append_url,  headers=self.headers, verify=self.VER)
+		return json.loads(r.text)['data']['description']
+		
+	def setDescComponent(self,id,desc):
+                data = json.dumps({"id":id, "description":desc, "status":self.getStatusFromId(id)})
+                append_url="/api/v1/components/"+str(id)
+                r = requests.put(self.base_url+append_url, data=data, headers=self.headers, verify=self.VER)
+
+	###################################
+	#
+	# FUNCIONS DE INCIDENTS
+	#
+	###################################
+	def treuIncidentIdFromNameAndMsg(self, cid, msg):
+		#
+		# Treu l'identificador de l'incident que correspon al component passat mitjançant ID i 
+		# que coincideix amb el missatge passat.
+		# cid: Component ID al qual pertany l'incident
+		# msg: El cos del missatge de l'incident ha de coincidir
+		#
+	        append_url="/api/v1/incidents"
+
+                r = requests.get(self.base_url+append_url, headers=self.headers, verify=self.VER)
+		try:
+			while r != None:
+                        # Iteram per tots els incidents fins trobar el que conicideix el nom i cid amb el passat per 
+                        # paràmetre
+
+				for inc in json.loads(r.text)['data']:
+					if cid == inc["component_id"] and msg == inc["message"]:
+						return inc["id"]
+				r = requests.get(json.loads(r.text)['meta']['pagination']['links']['next_page'], headers=self.headers, verify=self.VER)
+		except:
+			return "null"		
+		return "null"		
+
+
+
+	def ReportaIncident(self, nom, id, missatge):
+
+		# Crea incident amb el missatge passat i de nom "nom" i s'assigna al component amb id "id".
+		# El crea amb estatus=1, és a dir, obert
+		# nom: nom de l'incident.
+		# id: id del component relacionat amb l'incident
+		# missatge: missatge que donam a l'incident.
+
+                data = json.dumps({"name":nom,"message":missatge,"status":1,"component_id":id})
+                append_url="/api/v1/incidents"
+                r = requests.post(self.base_url+append_url, data=data, headers=self.headers, verify=self.VER)
+
+	def ArreglaIncident(self, nom, id, missatge):
+		
+		# Crea incident amb el missatge passat i de nom "nom" i s'assigna al component amb id "id".
+		# El crea amb status=4, fixed.
+		# nom: nom de l'incident.
+		# id: id del component relacionat amb l'incident
+		# missatge: missatge que donam a l'incident.
+
+                data = json.dumps({"name":nom,"message":missatge,"status":4,"component_id":id})
+                append_url="/api/v1/incidents"
+                r = requests.post(self.base_url+append_url, data=data, headers=self.headers, verify=self.VER)
+
+
+	def ReportaIncidentManteniment(self, nom, id, missatge):
+	#
+	# Crea un incident de manteniment pel dispositiu passat.
+	# nom: nom del dispositiu
+	# missatge: descripcio
+	#
+                data = json.dumps({"name":nom,"message":missatge,"status":0,"component_id":id})
+                append_url="/api/v1/incidents"
+                r = requests.post(self.base_url+append_url, data=data, headers=self.headers, verify=self.VER)
+
+<<<<<<< HEAD
+	def ReportaSchedule(self, nom, missatge, date):
+	#
+	# Totalment diferent. En aquest cas feim una crida al sistema per executar un script que prepara un webinject. Per tant, l'afegito
+	# de l'schedule es fa per HTTP, no per l'API de REST, ja que aquesta encara no està disponible.
+	# nom: nom del dispositiu
+	# missatge: descripcio
+	# date: data d'inici del manteniment. Format DD/MM/YYYY HH:MM
+	#
+		comanda="/bin/bash "+MAIN_PATH+"API/webinject/webinject0.sh "+self.base_url+" \""+nom+"\" \""+missatge+"\" \""+date+"\""
+		print comanda
+		return Popen(comanda, stdout=PIPE, shell=True)
+=======
+ 	def eliminaIncident(self, id):
+	#Retorna l'estat del servei: up o down.
+		append_url="/api/v1/incidents/"+str(id)
+		r = requests.delete(self.base_url+append_url,  headers=self.headers, verify=self.VER)
+
+	###################################
+	#
+	# FUNCIONS DE SERVEIS I DISPOSITIUS
+	#
+	###################################
+
 	def ActualitzaEstatDispositiu(self,nom,missatge,estat):
 
 		# Actualitza l'estat del component de nom "nom" amb l'estat "estat". Aixeca també un
@@ -183,71 +285,8 @@ class api_stashboard_panell:
 		# Wrapper d'ActualitzaEstatDispositiu
 		self.ActualitzaEstatDispositiu(nom,missatge,"perf")
 
-	def TombaComponent(self, id):
-		# Posa component amb id passat a l'estat de DOWN
-                data = json.dumps({"id":id, "status":4})
-                append_url="/api/v1/components/"+str(id)
-                r = requests.put(self.base_url+append_url, data=data, headers=self.headers, verify=self.VER)
 
-	def AixecaComponent(self, id):
-		# Posa component amb id passat a l'estat de UP
-                data = json.dumps({"id":id, "status":1})
-                append_url="/api/v1/components/"+str(id)
-                r = requests.put(self.base_url+append_url, data=data, headers=self.headers, verify=self.VER)
-
-	def ReportaComponent(self, id):
-		# Posa component amb id passat a l'estat de problemes de performance
-                data = json.dumps({"id":id, "status":2})
-                append_url="/api/v1/components/"+str(id)
-                r = requests.put(self.base_url+append_url, data=data, headers=self.headers, verify=self.VER)
-
-
-	def ReportaIncident(self, nom, id, missatge):
-
-		# Crea incident amb el missatge passat i de nom "nom" i s'assigna al component amb id "id".
-		# El crea amb estatus=1, és a dir, obert
-		# nom: nom de l'incident.
-		# id: id del component relacionat amb l'incident
-		# missatge: missatge que donam a l'incident.
-
-                data = json.dumps({"name":nom,"message":missatge,"status":1,"component_id":id})
-                append_url="/api/v1/incidents"
-                r = requests.post(self.base_url+append_url, data=data, headers=self.headers, verify=self.VER)
-
-	def ArreglaIncident(self, nom, id, missatge):
-		
-		# Crea incident amb el missatge passat i de nom "nom" i s'assigna al component amb id "id".
-		# El crea amb status=4, fixed.
-		# nom: nom de l'incident.
-		# id: id del component relacionat amb l'incident
-		# missatge: missatge que donam a l'incident.
-
-                data = json.dumps({"name":nom,"message":missatge,"status":4,"component_id":id})
-                append_url="/api/v1/incidents"
-                r = requests.post(self.base_url+append_url, data=data, headers=self.headers, verify=self.VER)
-
-
-	def ReportaIncidentManteniment(self, nom, id, missatge):
-	#
-	# Crea un incident de manteniment pel dispositiu passat.
-	# nom: nom del dispositiu
-	# missatge: descripcio
-	#
-                data = json.dumps({"name":nom,"message":missatge,"status":0,"component_id":id})
-                append_url="/api/v1/incidents"
-                r = requests.post(self.base_url+append_url, data=data, headers=self.headers, verify=self.VER)
-
-	def ReportaSchedule(self, nom, missatge, date):
-	#
-	# Totalment diferent. En aquest cas feim una crida al sistema per executar un script que prepara un webinject. Per tant, l'afegito
-	# de l'schedule es fa per HTTP, no per l'API de REST, ja que aquesta encara no està disponible.
-	# nom: nom del dispositiu
-	# missatge: descripcio
-	# date: data d'inici del manteniment. Format DD/MM/YYYY HH:MM
-	#
-		comanda="/bin/bash "+MAIN_PATH+"API/webinject/webinject0.sh "+self.base_url+" \""+nom+"\" \""+missatge+"\" \""+date+"\""
-		print comanda
-		return Popen(comanda, stdout=PIPE, shell=True)
+>>>>>>> a059666753770c2ebf65b953fc57f870e5f797b0
 
 	def CreaServei(self, nom, descripcio):
 	#Crea el servei o l'actualitza si ja existeix		
@@ -264,6 +303,46 @@ class api_stashboard_panell:
 	                append_url="/api/v1/components"
         	        r = requests.post(self.base_url+append_url, data=data,  headers=self.headers, verify=self.VER)
 			return json.loads(r.text)["data"]["id"]
+
+
+
+	def getEstat(self, nom):
+	#Retorna l'estat del servei: up o down.
+		nomservei = self.preprocess(nom)
+		id = self.treuComponentIdFromName(nomservei)
+		if id == "null":
+			return "null"
+		append_url="/api/v1/components/"+str(id)
+		r = requests.get(self.base_url+append_url,  headers=self.headers, verify=self.VER)
+		if json.loads(r.text)['data']['status'] == 1:
+			return "up"
+		elif  json.loads(r.text)['data']['status'] == 2:
+			return "perf"
+		else:
+			return "down"
+		
+
+	def getEstatId(self, id):
+	#Retorna l'estat del servei: up o down.
+		append_url="/api/v1/components/"+str(id)
+		r = requests.get(self.base_url+append_url,  headers=self.headers, verify=self.VER)
+		if json.loads(r.text)['data']['status'] == 1:
+			return "up"
+		elif  json.loads(r.text)['data']['status'] == 2:
+			return "perf"
+		else:
+			return "down"
+
+	def getStatusFromId(self, id):
+	#Retorna l'estat del servei: up o down.
+		append_url="/api/v1/components/"+str(id)
+		r = requests.get(self.base_url+append_url,  headers=self.headers, verify=self.VER)
+		return json.loads(r.text)['data']['status']
+
+	def eliminaServei(self, id):
+	#Retorna l'estat del servei: up o down.
+		append_url="/api/v1/components/"+str(id)
+		r = requests.delete(self.base_url+append_url,  headers=self.headers, verify=self.VER)
 
 
 
@@ -330,73 +409,8 @@ class api_stashboard_panell:
 			print "Component "+str(id)+" no te grup"
 			return "null";
 
-	def getNomComponent(self,id):
-                append_url="/api/v1/components/"+str(id)
-                r = requests.get(self.base_url+append_url,  headers=self.headers, verify=self.VER)
-		return json.loads(r.text)['data']['name']
-
-
-	def setNomComponent(self,id,nom):
-        # Set nom dispositiu
-                data = json.dumps({"id":id, "name":nom, "status":self.getStatusFromId(id)})
-                append_url="/api/v1/components/"+str(id)
-                r = requests.put(self.base_url+append_url, data=data, headers=self.headers, verify=self.VER)
-
-
-	def getDescComponent(self,id):
-                append_url="/api/v1/components/"+str(id)
-                r = requests.get(self.base_url+append_url,  headers=self.headers, verify=self.VER)
-		return json.loads(r.text)['data']['description']
-		
-	def setDescComponent(self,id,desc):
-                data = json.dumps({"id":id, "description":desc, "status":self.getStatusFromId(id)})
-                append_url="/api/v1/components/"+str(id)
-                r = requests.put(self.base_url+append_url, data=data, headers=self.headers, verify=self.VER)
-
-	def getEstat(self, nom):
-	#Retorna l'estat del servei: up o down.
-		nomservei = self.preprocess(nom)
-		id = self.treuComponentIdFromName(nomservei)
-		if id == "null":
-			return "null"
-		append_url="/api/v1/components/"+str(id)
-		r = requests.get(self.base_url+append_url,  headers=self.headers, verify=self.VER)
-		if json.loads(r.text)['data']['status'] == 1:
-			return "up"
-		elif  json.loads(r.text)['data']['status'] == 2:
-			return "perf"
-		else:
-			return "down"
-		
-
-	def getEstatId(self, id):
-	#Retorna l'estat del servei: up o down.
-		append_url="/api/v1/components/"+str(id)
-		r = requests.get(self.base_url+append_url,  headers=self.headers, verify=self.VER)
-		if json.loads(r.text)['data']['status'] == 1:
-			return "up"
-		elif  json.loads(r.text)['data']['status'] == 2:
-			return "perf"
-		else:
-			return "down"
-
-	def getStatusFromId(self, id):
-	#Retorna l'estat del servei: up o down.
-		append_url="/api/v1/components/"+str(id)
-		r = requests.get(self.base_url+append_url,  headers=self.headers, verify=self.VER)
-		return json.loads(r.text)['data']['status']
-
-	def eliminaServei(self, id):
-	#Retorna l'estat del servei: up o down.
-		append_url="/api/v1/components/"+str(id)
-		r = requests.delete(self.base_url+append_url,  headers=self.headers, verify=self.VER)
-
 	def eliminaGrups(self, id):
 	#Retorna l'estat del servei: up o down.
 		append_url="/api/v1/components/groups/"+str(id)
 		r = requests.delete(self.base_url+append_url,  headers=self.headers, verify=self.VER)
 
-	def eliminaIncident(self, id):
-	#Retorna l'estat del servei: up o down.
-		append_url="/api/v1/incidents/"+str(id)
-		r = requests.delete(self.base_url+append_url,  headers=self.headers, verify=self.VER)
