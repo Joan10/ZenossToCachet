@@ -1,0 +1,54 @@
+<results>
+
+    <testcases file="update_schedules_cachethq.xml">
+
+        <testcase id="1">
+            <description1>short description</description1>
+            <description2>long description</description2>
+            <verifyresponsecode>200</verifyresponsecode>
+            <verifyresponsecode-success>true</verifyresponsecode-success>
+            <verifyresponsecode-message>Passed HTTP Response Code Verification</verifyresponsecode-message>
+            <success>true</success>
+            <result-message>TEST CASE PASSED</result-message>
+            <responsetime>0.076</responsetime>
+        </testcase>
+
+        <testcase id="2">
+            <description1>short description</description1>
+            <description2>long description</description2>
+            <verifyresponsecode>302</verifyresponsecode>
+            <verifyresponsecode-success>true</verifyresponsecode-success>
+            <verifyresponsecode-message>Passed HTTP Response Code Verification</verifyresponsecode-message>
+            <success>true</success>
+            <result-message>TEST CASE PASSED</result-message>
+            <responsetime>0.376</responsetime>
+        </testcase>
+
+        <testcase id="3">
+            <description1>short description</description1>
+            <description2>long description</description2>
+            <verifyresponsecode>302</verifyresponsecode>
+            <verifyresponsecode-success>true</verifyresponsecode-success>
+            <verifyresponsecode-message>Passed HTTP Response Code Verification</verifyresponsecode-message>
+            <success>true</success>
+            <result-message>TEST CASE PASSED</result-message>
+            <responsetime>0.058</responsetime>
+        </testcase>
+
+    
+    </testcases>
+
+    <test-summary>
+        <start-time>Thu Jun 16 14:23:35 2016</start-time>
+        <total-run-time>0.563</total-run-time>
+        <test-cases-run>3</test-cases-run>
+        <test-cases-passed>3</test-cases-passed>
+        <test-cases-failed>0</test-cases-failed>
+        <verifications-passed>3</verifications-passed>
+        <verifications-failed>0</verifications-failed>
+        <average-response-time>0.17</average-response-time>
+        <max-response-time>0.376</max-response-time>
+        <min-response-time>0.058</min-response-time>
+    </test-summary>
+
+</results>

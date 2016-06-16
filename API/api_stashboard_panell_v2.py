@@ -5,8 +5,15 @@ import json
 import requests
 import unittest
 import random
+import os
+from os import listdir
+from os.path import isfile, join
+from subprocess import Popen, PIPE
+
+
 
 STR_MAINT="--Servei en manteniment--"
+MAIN_PATH="/home/stashboard/develop/"
 
 class api_stashboard_panell:
 
@@ -225,11 +232,22 @@ class api_stashboard_panell:
 	# Crea un incident de manteniment pel dispositiu passat.
 	# nom: nom del dispositiu
 	# missatge: descripcio
-	# date: data d'inici del manteniment. Format YYYY-DD-MM HH:MM:SS
 	#
                 data = json.dumps({"name":nom,"message":missatge,"status":0,"component_id":id})
                 append_url="/api/v1/incidents"
                 r = requests.post(self.base_url+append_url, data=data, headers=self.headers, verify=self.VER)
+
+	def ReportaSchedule(self, nom, missatge, date):
+	#
+	# Totalment diferent. En aquest cas feim una crida al sistema per executar un script que prepara un webinject. Per tant, l'afegito
+	# de l'schedule es fa per HTTP, no per l'API de REST, ja que aquesta encara no està disponible.
+	# nom: nom del dispositiu
+	# missatge: descripcio
+	# date: data d'inici del manteniment. Format DD/MM/YYYY HH:MM
+	#
+		comanda="/bin/bash "+MAIN_PATH+"API/webinject/webinject0.sh "+self.base_url+" \""+nom+"\" \""+missatge+"\" \""+date+"\""
+		print comanda
+		return Popen(comanda, stdout=PIPE, shell=True)
 
 	def CreaServei(self, nom, descripcio):
 	#Crea el servei o l'actualitza si ja existeix		
