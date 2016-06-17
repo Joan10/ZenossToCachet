@@ -10,7 +10,12 @@
 import sys
 from datetime import datetime, date, time
 
+
+
 sys.path.append("/home/stashboard/panell_serveis_critics_dev/ZenossToCachet/API/")
+sys.path.append("/home/stashboard/secrets/")
+
+from secrets import prod_public_hq_token,prod_private_hq_token,deve_public_hq_token,deve_private_hq_token
 
 import treu_events_grup_xml
 import api_stashboard_panell_v2 #Stashboard extens
@@ -25,12 +30,12 @@ xml_string = treu_events_grup_xml.treu_events_grup_xml('/zport/dmd/Groups/servei
 root = ET.fromstring(xml_string)
 
 # SERVIDORS PROVA
-st = api_stashboard_panell_v2.api_stashboard_panell("http://10.80.87.76","TGUTJqjJ6GXlTndt27hP");
-st2 = api_stashboard_panell_v2.api_stashboard_panell("http://10.80.87.76:9080","2I8GMpbCfL1lyqqK2Rlo");
+st = api_stashboard_panell_v2.api_stashboard_panell("http://10.80.87.76",deve_public_hq_token);
+st2 = api_stashboard_panell_v2.api_stashboard_panell("http://10.80.87.76:9080",deve_private_hq_token);
 
 # SERVIDORS PRODUCCIO
-#st = api_stashboard_panell_v2.api_stashboard_panell("http://panell-estats-cti.sint.uib.es:8080","TGUTJqjJ6GXlTndt27hP");# Exclusiu del CTI 
-#st2 = api_stashboard_panell_v2.api_stashboard_panell("http://panell-estats.sint.uib.es:8080","HISEU50ehqdi86Imehlw");# Public
+#st = api_stashboard_panell_v2.api_stashboard_panell("http://panell-estats-cti.sint.uib.es:8080",deve_private_hq_token);# Exclusiu del CTI 
+#st2 = api_stashboard_panell_v2.api_stashboard_panell("http://panell-estats.sint.uib.es:8080",deve_public_hq_token);# Public
 
 zp=ZenossAPI.ZenossAPI()
 
@@ -66,14 +71,12 @@ def actualitza(st, id, nom, perfok, aixeca, maint, maintmsg,date):
 		# Si hi ha algun event de manteniment, miram si ja està reportat. Si no ho està l'afegim.
 		# Si el dispositiu ja té algun incident de manteniment no el tornam a afegir
 		if maint_act == "False":
-			print "no manteniment"
 			#st.ReportaIncidentManteniment(nom,id,maintmsg)
 			st.ReportaSchedule(nom,maintmsg,date)
 			st.posaComponentEnManteniment(id)
 	else:
 		# Si no n'hi ha cap, miram si no està reportat. Si hi està el treim.
 		if maint_act == "True": # Si el dispositiu té algun incident de manteniment
-			#print " manteniment"
 #			st.ArreglaIncident(nom,id,"Manteniment finalitzat")
 			st.llevaComponentDeManteniment(id)
 		

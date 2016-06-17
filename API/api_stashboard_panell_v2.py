@@ -23,7 +23,6 @@ class api_stashboard_panell:
 
 	
 	user="joan.arbona@uib.es"
-	passwd="memCachet0"
 
 	def __init__(self, url, token):
 		self.base_url = url
