@@ -30,8 +30,8 @@ xml_string = treu_events_grup_xml.treu_events_grup_xml('/zport/dmd/Groups/servei
 root = ET.fromstring(xml_string)
 
 # SERVIDORS PROVA
-st = api_stashboard_panell_v2.api_stashboard_panell("http://10.80.87.76",prod_public_hq_token);
-st2 = api_stashboard_panell_v2.api_stashboard_panell("http://10.80.87.76:9080",prod_private_hq_token);
+st = api_stashboard_panell_v2.api_stashboard_panell("http://10.80.87.76",deve_public_hq_token);
+st2 = api_stashboard_panell_v2.api_stashboard_panell("http://10.80.87.76:9080",deve_private_hq_token);
 
 # SERVIDORS PRODUCCIO
 #st = api_stashboard_panell_v2.api_stashboard_panell("http://panell-estats-cti.sint.uib.es:8080",deve_private_hq_token);# Exclusiu del CTI 
@@ -79,6 +79,8 @@ def actualitza(st, id, nom, perfok, aixeca, maint, maintmsg,date):
 		if maint_act == "True": # Si el dispositiu té algun incident de manteniment
 #			st.ArreglaIncident(nom,id,"Manteniment finalitzat")
 			st.llevaComponentDeManteniment(id)
+			print "--"+nom+"--"+str(id)
+			print "llevam de manteniment"
 		
 	if aixeca == 1:
         	if perfok == 0:
