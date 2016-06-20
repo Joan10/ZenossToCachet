@@ -12,7 +12,7 @@ from datetime import datetime, date, time
 
 
 
-sys.path.append("/home/stashboard/panell_serveis_critics_dev/ZenossToCachet/API/")
+sys.path.append("/home/stashboard/panell_serveis_critics_v3/ZenossToCachet/API/")
 sys.path.append("/home/stashboard/secrets/")
 
 from secrets import prod_public_hq_token,prod_private_hq_token,deve_public_hq_token,deve_private_hq_token
@@ -30,25 +30,14 @@ xml_string = treu_events_grup_xml.treu_events_grup_xml('/zport/dmd/Groups/servei
 root = ET.fromstring(xml_string)
 
 # SERVIDORS PROVA
-#<<<<<<< HEAD
 #st = api_stashboard_panell_v2.api_stashboard_panell("http://10.80.87.76","TGUTJqjJ6GXlTndt27hP");
 #st2 = api_stashboard_panell_v2.api_stashboard_panell("http://10.80.87.76:9080","2I8GMpbCfL1lyqqK2Rlo");
 
 # SERVIDORS PRODUCCIO
-st = api_stashboard_panell_v2.api_stashboard_panell("http://panell-estats-cti.sint.uib.es:8080","TGUTJqjJ6GXlTndt27hP");# Exclusiu del CTI 
-st2 = api_stashboard_panell_v2.api_stashboard_panell("http://panell-estats.sint.uib.es:8080","HISEU50ehqdi86Imehlw");# Public
-#=======
-#st = api_stashboard_panell_v2.api_stashboard_panell("http://10.80.87.76",deve_public_hq_token);
-#st2 = api_stashboard_panell_v2.api_stashboard_panell("http://10.80.87.76:9080",deve_private_hq_token);
-
-# SERVIDORS PRODUCCIO
-#st = api_stashboard_panell_v2.api_stashboard_panell("http://panell-estats-cti.sint.uib.es:8080",deve_private_hq_token);# Exclusiu del CTI 
-#st2 = api_stashboard_panell_v2.api_stashboard_panell("http://panell-estats.sint.uib.es:8080",deve_public_hq_token);# Public
-#>>>>>>> 526b70bdfa9b8ed9b33a725b01c761d697675a49
+st = api_stashboard_panell_v2.api_stashboard_panell("http://10.80.87.76",deve_public_hq_token);
+st2 = api_stashboard_panell_v2.api_stashboard_panell("http://10.80.87.76:9080",deve_private_hq_token);
 
 zp=ZenossAPI.ZenossAPI()
-
-
 
 #DUMPING ET:
 #ET.dump(TREE)
@@ -116,7 +105,7 @@ for disp in root.findall('dispositiu'):
 	maint = 0
 	maintmsg = ""
 	scheduled_at = ""
-	if disp.text != "udp.sint.uib.ess":
+	if disp.text != "udp.sint.uib.es":
 		try:
 			# Parsejam el nom del dispositiu. Aquest anirà contingut dins el camp Comments del Zenoss de la forma següent:
 			# cachet=<nom>;
