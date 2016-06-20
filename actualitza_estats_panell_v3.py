@@ -8,12 +8,20 @@
 #
 
 import sys
-sys.path.append("/home/stashboard/panell_serveis_critics_v3/API/")
+from datetime import datetime, date, time
+
+
+
+sys.path.append("/home/stashboard/panell_serveis_critics_dev/ZenossToCachet/API/")
+sys.path.append("/home/stashboard/secrets/")
+
+from secrets import prod_public_hq_token,prod_private_hq_token,deve_public_hq_token,deve_private_hq_token
 
 import treu_events_grup_xml
 import api_stashboard_panell_v2 #Stashboard extens
 import xml.etree.ElementTree as ET
 import ZenossAPI
+
 
 MIN_SEVERITY = 5
 
@@ -22,17 +30,30 @@ xml_string = treu_events_grup_xml.treu_events_grup_xml('/zport/dmd/Groups/servei
 root = ET.fromstring(xml_string)
 
 # SERVIDORS PROVA
+#<<<<<<< HEAD
 #st = api_stashboard_panell_v2.api_stashboard_panell("http://10.80.87.76","TGUTJqjJ6GXlTndt27hP");
 #st2 = api_stashboard_panell_v2.api_stashboard_panell("http://10.80.87.76:9080","2I8GMpbCfL1lyqqK2Rlo");
 
 # SERVIDORS PRODUCCIO
 st = api_stashboard_panell_v2.api_stashboard_panell("http://panell-estats-cti.sint.uib.es:8080","TGUTJqjJ6GXlTndt27hP");# Exclusiu del CTI 
 st2 = api_stashboard_panell_v2.api_stashboard_panell("http://panell-estats.sint.uib.es:8080","HISEU50ehqdi86Imehlw");# Public
+#=======
+#st = api_stashboard_panell_v2.api_stashboard_panell("http://10.80.87.76",deve_public_hq_token);
+#st2 = api_stashboard_panell_v2.api_stashboard_panell("http://10.80.87.76:9080",deve_private_hq_token);
+
+# SERVIDORS PRODUCCIO
+#st = api_stashboard_panell_v2.api_stashboard_panell("http://panell-estats-cti.sint.uib.es:8080",deve_private_hq_token);# Exclusiu del CTI 
+#st2 = api_stashboard_panell_v2.api_stashboard_panell("http://panell-estats.sint.uib.es:8080",deve_public_hq_token);# Public
+#>>>>>>> 526b70bdfa9b8ed9b33a725b01c761d697675a49
 
 zp=ZenossAPI.ZenossAPI()
 
 
-def actualitza(st, id, nom, perfok, aixeca, maint, maintmsg):
+
+#DUMPING ET:
+#ET.dump(TREE)
+
+def actualitza(st, id, nom, perfok, aixeca, maint, maintmsg,date):
 # 
 # Funció que actualitza l'estat dels components i incidents del Cachet en funció de tres flags: perfok, aixeca i maint
 # Té en compte els casos en què:
@@ -59,14 +80,13 @@ def actualitza(st, id, nom, perfok, aixeca, maint, maintmsg):
 		# Si hi ha algun event de manteniment, miram si ja està reportat. Si no ho està l'afegim.
 		# Si el dispositiu ja té algun incident de manteniment no el tornam a afegir
 		if maint_act == "False":
-			#print "no manteniment"
-			st.ReportaIncidentManteniment(nom,id,maintmsg)
+			#st.ReportaIncidentManteniment(nom,id,maintmsg)
+			st.ReportaSchedule(nom,maintmsg,date)
 			st.posaComponentEnManteniment(id)
 	else:
 		# Si no n'hi ha cap, miram si no està reportat. Si hi està el treim.
 		if maint_act == "True": # Si el dispositiu té algun incident de manteniment
-			#print " manteniment"
-			st.ArreglaIncident(nom,id,"Manteniment finalitzat")
+#			st.ArreglaIncident(nom,id,"Manteniment finalitzat")
 			st.llevaComponentDeManteniment(id)
 		
 	if aixeca == 1:
@@ -95,7 +115,8 @@ for disp in root.findall('dispositiu'):
 	perfok = 1 # Variable per saber si el servei té un rendiment correcte
 	maint = 0
 	maintmsg = ""
-	if disp.text != "udp.sint.uib.es":
+	scheduled_at = ""
+	if disp.text != "udp.sint.uib.ess":
 		try:
 			# Parsejam el nom del dispositiu. Aquest anirà contingut dins el camp Comments del Zenoss de la forma següent:
 			# cachet=<nom>;
@@ -128,6 +149,8 @@ for disp in root.findall('dispositiu'):
 				message = event.find('message')
 				severity = event.find('severity')
 				count = event.find('count')
+				component = event.find('component').find('text')
+				eventClassKey = event.find('eventClassKey')
 				device_groups_str = ET.tostring(event)
 				##########################################################
 				#Cal mirar si el device de l'event es critic, 
@@ -155,17 +178,19 @@ for disp in root.findall('dispositiu'):
 						#Si hi ha un scheduling programat ho reflectim també independentment 
 						#de la resta. Si falla, simplement passam.
 						##########################################################
-						if  int(severity.text) == 2:
-						#	data_sch = event.find("component");
-						#	t_data_sch=datetime.strptime(data_sch, "%Y-%m-%d %H:%M:%S")
-							if event.find('eventClassKey').text == "manteniment":
+						if  int(severity.text) == 2 and component.text != "" and eventClassKey.text != "":
+							data_sch = component.text;
+							t_data_sch=datetime.strptime(data_sch, "%Y-%m-%d %H:%M")
+							if eventClassKey.text == "manteniment":
 								maint=1
-								maintmsg="Manteniment programat per " + event.find('firstTime').text + ". " + message.text
+								maintmsg=message.text
+								scheduled_at=t_data_sch.strftime("%d/%m/%Y %H:%M")
 						
 							
-				except:
+				except Exception as e:
 					print "Ooops. Error en un event de "+nom
-					print("Error:", sys.exc_info()[0])
+					print("Exception:", sys.exc_info()[0])
+					print("Error:", e)
 					pass
 					
 
@@ -175,7 +200,7 @@ for disp in root.findall('dispositiu'):
 		# per tal de ser tombat l'aixecam.
 		##########################################################
 
-		actualitza(st,id,nom,perfok,aixeca,maint,maintmsg)
-		if nompublic != "null":
-			actualitza(st2,id2,nompublic,perfok,aixeca,maint,maintmsg)
+		actualitza(st,id,nom,perfok,aixeca,maint,maintmsg,scheduled_at)
+	#	if nompublic != "null":
+#			actualitza(st2,id2,nompublic,perfok,aixeca,maint,maintmsg,scheduled_at)
 
