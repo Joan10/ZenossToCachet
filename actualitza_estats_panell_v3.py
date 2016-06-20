@@ -177,9 +177,9 @@ for disp in root.findall('dispositiu'):
 						
 							
 				except Exception as e:
-					print "Ooops. Error en un event de "+nom
-					print("Exception:", sys.exc_info()[0])
-					print("Error:", e)
+	#				print "Ooops. Error en un event de "+nom
+	#				print("Exception:", sys.exc_info()[0])
+	#				print("Error:", e)
 					pass
 					
 
