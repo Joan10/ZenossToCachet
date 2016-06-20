@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
+# master
 #
 # Autor: Joan Arbona
 # Script que actualitza la web de panell-estats, d'informació sobre l'estat de la infraestructura del CTI
