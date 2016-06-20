@@ -34,8 +34,8 @@ root = ET.fromstring(xml_string)
 #st2 = api_stashboard_panell_v2.api_stashboard_panell("http://10.80.87.76:9080","2I8GMpbCfL1lyqqK2Rlo");
 
 # SERVIDORS PRODUCCIO
-st = api_stashboard_panell_v2.api_stashboard_panell("http://panell-estats-cti.sint.uib.es:8080",prod_public_hq_token);
-st2 = api_stashboard_panell_v2.api_stashboard_panell("http://panell-estats.sint.uib.es:8080",prod_private_hq_token);
+st = api_stashboard_panell_v2.api_stashboard_panell("http://panell-estats-cti.sint.uib.es:8080",prod_private_hq_token);
+st2 = api_stashboard_panell_v2.api_stashboard_panell("http://panell-estats.sint.uib.es:8080",prod_public_hq_token);
 
 zp=ZenossAPI.ZenossAPI()
 
