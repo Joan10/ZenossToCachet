@@ -12,7 +12,7 @@ from datetime import datetime, date, time
 
 
 
-sys.path.append("/home/stashboard/panell_serveis_critics_v3/ZenossToCachet/API/")
+sys.path.append("/home/stashboard/master/ZenossToCachet/API/")
 sys.path.append("/home/stashboard/secrets/")
 
 from secrets import prod_public_hq_token,prod_private_hq_token,deve_public_hq_token,deve_private_hq_token
@@ -34,8 +34,8 @@ root = ET.fromstring(xml_string)
 #st2 = api_stashboard_panell_v2.api_stashboard_panell("http://10.80.87.76:9080","2I8GMpbCfL1lyqqK2Rlo");
 
 # SERVIDORS PRODUCCIO
-st = api_stashboard_panell_v2.api_stashboard_panell("http://10.80.87.76",deve_public_hq_token);
-st2 = api_stashboard_panell_v2.api_stashboard_panell("http://10.80.87.76:9080",deve_private_hq_token);
+st = api_stashboard_panell_v2.api_stashboard_panell("http://panell-estats-cti.sint.uib.es:8080",prod_public_hq_token);
+st2 = api_stashboard_panell_v2.api_stashboard_panell("http://panell-estats.sint.uib.es:8080",prod_private_hq_token);
 
 zp=ZenossAPI.ZenossAPI()
 
@@ -190,6 +190,6 @@ for disp in root.findall('dispositiu'):
 		##########################################################
 
 		actualitza(st,id,nom,perfok,aixeca,maint,maintmsg,scheduled_at)
-	#	if nompublic != "null":
-#			actualitza(st2,id2,nompublic,perfok,aixeca,maint,maintmsg,scheduled_at)
+		if nompublic != "null":
+			actualitza(st2,id2,nompublic,perfok,aixeca,maint,maintmsg,scheduled_at)
 
