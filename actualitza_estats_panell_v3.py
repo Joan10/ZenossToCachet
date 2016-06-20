@@ -83,20 +83,17 @@ def actualitza(st, id, nom, perfok, aixeca, maint, maintmsg,date):
                 	if st.getEstatId(id) != "perf":
 				# Cas en que hi ha problemes de rendiment
 				st.ReportaComponent(id)
-				if maint == 0:
-					st.ReportaIncident(nom,id,"El servei està experimentant problemes de rendiment.")
+				st.ReportaIncident(nom,id,"El servei està experimentant problemes de rendiment.")
                 else:
                         if st.getEstatId(id) != "up":
 				# Cas en que el servei torna a funcionar
 				st.AixecaComponent(id)
-				if maint == 0:
-					st.ArreglaIncident(nom,id,"El servei funciona correctament.")
+				st.ArreglaIncident(nom,id,"El servei funciona correctament.")
         else:
                if st.getEstatId(id) != "down":
 			# Cas en que el servei deixa de funcionar
 			st.TombaComponent(id)
-			if maint == 0:
-				st.ReportaIncident(nom,id,"Sembla que el servei està experimentant alguns problemes. Estam treballant perquè torni a estar operatiu el més aviat possible.")
+			st.ReportaIncident(nom,id,"Sembla que el servei està experimentant alguns problemes. Estam treballant perquè torni a estar operatiu el més aviat possible.")
 
 for disp in root.findall('dispositiu'):
 
