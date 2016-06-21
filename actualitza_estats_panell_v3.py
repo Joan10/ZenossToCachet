@@ -8,14 +8,14 @@
 #
 
 import sys
-from datetime import datetime, date, time
+from datetime import datetime, date, time, timedelta
 
 
 
 sys.path.append("/home/stashboard/panell_serveis_critics_dev/ZenossToCachet/API/")
 sys.path.append("/home/stashboard/secrets/")
 
-from secrets import prod_public_hq_token,prod_private_hq_token,deve_public_hq_token,deve_private_hq_token
+from secrets import prod_public_hq_token,prod_private_hq_token,deve_public_hq_token,deve_private_hq_token,web_password
 
 import treu_events_grup_xml
 import api_stashboard_panell_v2 #Stashboard extens
@@ -30,12 +30,12 @@ xml_string = treu_events_grup_xml.treu_events_grup_xml('/zport/dmd/Groups/servei
 root = ET.fromstring(xml_string)
 
 # SERVIDORS PROVA
-st = api_stashboard_panell_v2.api_stashboard_panell("http://10.80.87.76",deve_public_hq_token);
-st2 = api_stashboard_panell_v2.api_stashboard_panell("http://10.80.87.76:9080",deve_private_hq_token);
+st = api_stashboard_panell_v2.api_stashboard_panell("http://10.80.87.76",deve_public_hq_token,web_password);
+st2 = api_stashboard_panell_v2.api_stashboard_panell("http://10.80.87.76:9080",deve_private_hq_token,web_password);
 
 # SERVIDORS PRODUCCIO
-#st = api_stashboard_panell_v2.api_stashboard_panell("http://panell-estats-cti.sint.uib.es:8080",deve_private_hq_token);# Exclusiu del CTI 
-#st2 = api_stashboard_panell_v2.api_stashboard_panell("http://panell-estats.sint.uib.es:8080",deve_public_hq_token);# Public
+#st = api_stashboard_panell_v2.api_stashboard_panell("http://panell-estats-cti.sint.uib.es:8080",deve_private_hq_token,web_password);# Exclusiu del CTI 
+#st2 = api_stashboard_panell_v2.api_stashboard_panell("http://panell-estats.sint.uib.es:8080",deve_public_hq_token,web_password);# Public
 
 zp=ZenossAPI.ZenossAPI()
 
@@ -43,6 +43,23 @@ zp=ZenossAPI.ZenossAPI()
 
 #DUMPING ET:
 #ET.dump(TREE)
+
+#
+# Funció que sincronitza els schedules del CachetHQ amb els Maintenance Window.
+# Primer els mira tots, i, si no existeixen ja, i no han caducat, els afegeix. 
+# De comentari afegeix el nom del dispositiu, la data d'inici de l'aturada i la data de final.
+# 
+def actualitza_schedule(st, nomservei, mw):
+	reload(sys) # fuck you python
+	sys.setdefaultencoding("utf-8")
+
+	for w in mw:
+		sta_time=datetime.fromtimestamp(float(w["start"]))
+		end_time=sta_time+timedelta(minutes=float(w["duration"]))
+		
+		if st.treuIdFromSchedule(w["nom"],end_time.strftime("%Y-%m-%d %H:%M:%S")) == "null":
+			if datetime.now() < end_time: # Només cream l'schedule si el maint window segueix vigent.
+				st.ReportaSchedule(w["nom"],"El servei "+nomservei+" estara aturat per tasques de manteniment des de la data "+sta_time.strftime("%Y-%m-%d %H:%M")+" fins "+end_time.strftime("%Y-%m-%d %H:%M")+".",end_time.strftime("%d/%m/%Y %H:%M"))
 
 def actualitza(st, id, nom, perfok, aixeca, maint, maintmsg,date):
 # 
@@ -65,22 +82,22 @@ def actualitza(st, id, nom, perfok, aixeca, maint, maintmsg,date):
 	#print "perfok="+str(perfok)
 	#print "aixeca="+str(aixeca)
 	#print " "
-	maint_act=st.componentEnManteniment(id);
+#	maint_act=st.componentEnManteniment(id);
 	#print "maint_act="+maint_act
-	if maint==1:
+#	if maint==1:
 		# Si hi ha algun event de manteniment, miram si ja està reportat. Si no ho està l'afegim.
 		# Si el dispositiu ja té algun incident de manteniment no el tornam a afegir
-		if maint_act == "False":
+#		if maint_act == "False":
 			#st.ReportaIncidentManteniment(nom,id,maintmsg)
-			st.ReportaSchedule(nom,maintmsg,date)
-			st.posaComponentEnManteniment(id)
-	else:
+#			st.ReportaSchedule(nom,maintmsg,date)
+#			st.posaComponentEnManteniment(id)
+#	else:
 		# Si no n'hi ha cap, miram si no està reportat. Si hi està el treim.
-		if maint_act == "True": # Si el dispositiu té algun incident de manteniment
+#		if maint_act == "True": # Si el dispositiu té algun incident de manteniment
 #			st.ArreglaIncident(nom,id,"Manteniment finalitzat")
-			st.llevaComponentDeManteniment(id)
-			print "--"+nom+"--"+str(id)
-			print "llevam de manteniment"
+#			st.llevaComponentDeManteniment(id)
+#			print "--"+nom+"--"+str(id)
+#			print "llevam de manteniment"
 		
 	if aixeca == 1:
         	if perfok == 0:
@@ -175,7 +192,7 @@ for disp in root.findall('dispositiu'):
 								maint=1
 								maintmsg=message.text
 								scheduled_at=t_data_sch.strftime("%d/%m/%Y %H:%M")
-						
+									
 							
 				except Exception as e:
 					print "Ooops. Error en un event de "+nom
@@ -190,7 +207,14 @@ for disp in root.findall('dispositiu'):
 		# per tal de ser tombat l'aixecam.
 		##########################################################
 
+		##########################################################
+		# Sincronitzam els Maintenance Windows
+                #########################################################
+		mw=zp.get_deviceMaintWindows(zp.get_UID(disp.text))
+
+		actualitza_schedule(st,nom,mw)
 		actualitza(st,id,nom,perfok,aixeca,maint,maintmsg,scheduled_at)
 		if nompublic != "null":
+	#		actualitza_schedule(st2,nompublic,mw)
 			actualitza(st2,id2,nompublic,perfok,aixeca,maint,maintmsg,scheduled_at)
 
