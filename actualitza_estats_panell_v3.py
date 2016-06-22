@@ -49,6 +49,8 @@ zp=ZenossAPI.ZenossAPI()
 # Primer els mira tots, i, si no existeixen ja, i no han caducat, els afegeix. 
 # De comentari afegeix el nom del dispositiu, la data d'inici de l'aturada i la data de final.
 # 
+
+
 def actualitza_schedule(st, nomservei, mw):
 	reload(sys) # fuck you python
 	sys.setdefaultencoding("utf-8")
@@ -59,71 +61,48 @@ def actualitza_schedule(st, nomservei, mw):
 		
 		if st.treuIdFromSchedule(w["nom"],end_time.strftime("%Y-%m-%d %H:%M:%S")) == "null":
 			if datetime.now() < end_time: # Només cream l'schedule si el maint window segueix vigent.
-				st.ReportaSchedule(w["nom"],"El servei "+nomservei+" estara aturat per tasques de manteniment des de la data "+sta_time.strftime("%Y-%m-%d %H:%M")+" fins "+end_time.strftime("%Y-%m-%d %H:%M")+".",end_time.strftime("%d/%m/%Y %H:%M"))
+				msg="El servei "+nomservei+" estarà aturat per tasques de manteniment des del dia "+sta_time.strftime("%d-%m-%Y")+" a les "+sta_time.strftime("%H:%M")+" fins el dia "+end_time.strftime("%d-%m-%Y")+" a les "+ end_time.strftime("%H:%M")+"."
 
-def actualitza(st, id, nom, perfok, aixeca, maint, maintmsg,date):
+				st.ReportaSchedule(w["nom"],msg,end_time.strftime("%d/%m/%Y %H:%M"))
+
+def actualitza(st, id, nom, znom, perfok, aixeca):
 # 
 # Funció que actualitza l'estat dels components i incidents del Cachet en funció de tres flags: perfok, aixeca i maint
 # Té en compte els casos en què:
-# 1. Hi ha problemes de rendiment. aixeca = 1, perfok = 0, maint=0
-# 2. Hi ha problemes de rendiment, però està en manteniment. aixeca = 1, perfok = 0, maint=1
-# 2. El servei torna a funcionar correctament. aixeca = 1, perfok = 1, maint = 0
-# 2. El servei torna a funcionar correctament estant en manteniment. aixeca = 1, perfok = 1, maint = 1
-# 3. El servei NO funciona. Aixeca = 0, perfok=X, maint = 0
-# 4. El servei NO funciona però està en manteniment. Aixeca = 0, perfok=X, maint = 1
-#
-# En cas que el servei estigui en manteniment, maint=1, modificam el component però no aixecam incident.
-	
-	# Si hi ha algun manteniment programat generam un incident
-	# miram primer si l'incident ja existeix i si no és així el cream.
-	#print "--"+nom+"--"+str(id)
-	#print "maint="+str(maint)
-	#print "maintmsg="+maintmsg
-	#print "perfok="+str(perfok)
-	#print "aixeca="+str(aixeca)
-	#print " "
-#	maint_act=st.componentEnManteniment(id);
-	#print "maint_act="+maint_act
-#	if maint==1:
-		# Si hi ha algun event de manteniment, miram si ja està reportat. Si no ho està l'afegim.
-		# Si el dispositiu ja té algun incident de manteniment no el tornam a afegir
-#		if maint_act == "False":
-			#st.ReportaIncidentManteniment(nom,id,maintmsg)
-#			st.ReportaSchedule(nom,maintmsg,date)
-#			st.posaComponentEnManteniment(id)
-#	else:
-		# Si no n'hi ha cap, miram si no està reportat. Si hi està el treim.
-#		if maint_act == "True": # Si el dispositiu té algun incident de manteniment
-#			st.ArreglaIncident(nom,id,"Manteniment finalitzat")
-#			st.llevaComponentDeManteniment(id)
-#			print "--"+nom+"--"+str(id)
-#			print "llevam de manteniment"
-		
-	if aixeca == 1:
-        	if perfok == 0:
-                	if st.getEstatId(id) != "perf":
-				# Cas en que hi ha problemes de rendiment
-				st.ReportaComponent(id)
-				st.ReportaIncident(nom,id,"El servei està experimentant problemes de rendiment.")
-                else:
-                        if st.getEstatId(id) != "up":
-				# Cas en que el servei torna a funcionar
-				st.AixecaComponent(id)
-				st.ArreglaIncident(nom,id,"El servei funciona correctament.")
-        else:
-               if st.getEstatId(id) != "down":
+# 1. Hi ha problemes de rendiment. aixeca = 1, perfok = 0
+# 2. El servei torna a funcionar correctament. aixeca = 1, perfok = 1
+# 3. El servei NO funciona. Aixeca = 0, perfok=X
+# SI el component està en manteniment, el posam en l'estat que toca i no hi feim canvis.
+#	
+	maint = zp.is_inMaintenanceWindow(zp.get_UID(znom))
+	if maint == "True":
+		if st.getEstatId(id) != "maint":
+			st.posaComponentEnManteniment(id)
+	else:
+		if aixeca == 1:
+        		if perfok == 0:
+                		if st.getEstatId(id) != "perf":
+					# Cas en que hi ha problemes de rendiment
+					st.ReportaComponent(id)
+					st.ReportaIncident(nom,id,"El servei està experimentant problemes de rendiment.")
+        	        else:
+                	        if st.getEstatId(id) != "up":
+					# Cas en que el servei torna a funcionar
+					st.AixecaComponent(id)
+					st.ArreglaIncident(nom,id,"El servei funciona correctament.")
+        	else:
+               		if st.getEstatId(id) != "down":
 			# Cas en que el servei deixa de funcionar
-			st.TombaComponent(id)
-			st.ReportaIncident(nom,id,"Sembla que el servei està experimentant alguns problemes. Estam treballant perquè torni a estar operatiu el més aviat possible.")
+				st.TombaComponent(id)
+				st.ReportaIncident(nom,id,"Sembla que el servei està experimentant alguns problemes. Estam treballant perquè torni a estar operatiu el més aviat possible.")
 
 for disp in root.findall('dispositiu'):
 
 	aixeca = 1 # Variable per saber si hem d'aixecar o no el servei en qüestoó
 	perfok = 1 # Variable per saber si el servei té un rendiment correcte
-	maint = 0
-	maintmsg = ""
 	scheduled_at = ""
 	if disp.text != "udp.sint.uib.ess":
+	#if disp.text != "udp.sint.uib.es":
 		try:
 			# Parsejam el nom del dispositiu. Aquest anirà contingut dins el camp Comments del Zenoss de la forma següent:
 			# cachet=<nom>;
@@ -185,13 +164,13 @@ for disp in root.findall('dispositiu'):
 						#Si hi ha un scheduling programat ho reflectim també independentment 
 						#de la resta. Si falla, simplement passam.
 						##########################################################
-						if  int(severity.text) == 2 and component.text != "" and eventClassKey.text != "":
-							data_sch = component.text;
-							t_data_sch=datetime.strptime(data_sch, "%Y-%m-%d %H:%M")
-							if eventClassKey.text == "manteniment":
-								maint=1
-								maintmsg=message.text
-								scheduled_at=t_data_sch.strftime("%d/%m/%Y %H:%M")
+						#if  int(severity.text) == 2 and component.text != "" and eventClassKey.text != "":
+						#	data_sch = component.text;
+						#	t_data_sch=datetime.strptime(data_sch, "%Y-%m-%d %H:%M")
+						#	if eventClassKey.text == "manteniment":
+						#		maint=1
+						#		maintmsg=message.text
+						#		scheduled_at=t_data_sch.strftime("%d/%m/%Y %H:%M")
 									
 							
 				except Exception as e:
@@ -213,8 +192,8 @@ for disp in root.findall('dispositiu'):
 		mw=zp.get_deviceMaintWindows(zp.get_UID(disp.text))
 
 		actualitza_schedule(st,nom,mw)
-		actualitza(st,id,nom,perfok,aixeca,maint,maintmsg,scheduled_at)
+		actualitza(st,id,nom,disp.text,perfok,aixeca)
 		if nompublic != "null":
-	#		actualitza_schedule(st2,nompublic,mw)
-			actualitza(st2,id2,nompublic,perfok,aixeca,maint,maintmsg,scheduled_at)
+			actualitza_schedule(st2,nompublic,mw)
+			actualitza(st2,id2,nompublic,disp.text,perfok,aixeca)
 

@@ -9,7 +9,7 @@ fi
 cd "${0%/*}"
 host=$1
 nom=$2
-desc=$3
+desc=`echo $3|iconv -f latin1 -t utf-8//translit`
 data=$4
 pass=$5
 

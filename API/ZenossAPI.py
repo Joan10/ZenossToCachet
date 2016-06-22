@@ -4,6 +4,7 @@ import json
 
 import urllib
 import urllib2
+from datetime import datetime, time, timedelta
 
 
 ZENOSS_INSTANCE = 'http://192.168.41.40:8080'
@@ -132,6 +133,20 @@ class ZenossAPI():
 		l_mw.append(mw)
 		mw={}
 	return l_mw
+
+    def is_inMaintenanceWindow(self, device_uid):
+#	mw = get_deviceMaintWindows(device_uid)
+ #       for w in mw:
+  #              sta_time=datetime.fromtimestamp(float(w["start"]))
+   #             end_time=sta_time+timedelta(minutes=float(w["duration"]))
+    #            if datetime.now() < end_time and datetime.now() > sta_time: # Miram si estam en hora...
+#			return "True"
+#	return "False"	
+	status=self._simple_get_request(device_uid+"/getProductionStateString")
+	if status=="Maintenance":
+		return "True"
+	else:
+		return "False"
 
     def add_device(self, deviceName, deviceClass):
         data = dict(deviceName=deviceName, deviceClass=deviceClass)
