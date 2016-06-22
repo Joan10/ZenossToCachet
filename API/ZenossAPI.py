@@ -4,6 +4,7 @@ import json
 
 import urllib
 import urllib2
+from datetime import datetime, time, timedelta
 
 
 ZENOSS_INSTANCE = 'http://192.168.41.40:8080'
@@ -67,6 +68,12 @@ class ZenossAPI():
         # Submit the request and convert the returned JSON to objects
         return json.loads(self.urlOpener.open(req, reqData).read())
 
+    def _simple_get_request(self, path):
+	req = urllib2.Request(ZENOSS_INSTANCE + path)
+	req.add_header('Content-type', 'application/json; charset=utf-8')
+	return self.urlOpener.open(req).read()
+
+
     def get_devices(self, deviceClass='/zport/dmd/Devices'):
         return self._router_request('DeviceRouter', 'getDevices',
                                     data=[{'uid': deviceClass,
@@ -99,9 +106,6 @@ class ZenossAPI():
 			return i['path'][len+23:].replace("/","")
 	raise Exception("No esta dins cap grup")
 			
-
-
-
     def get_devicecomment(self, device_uid):
 	# Se li ha de passar forçosament un uid de Device Class
         comment=self._router_request('DeviceRouter', 'getInfo',data=[{'uid': device_uid}])['result']['data']['comments']
@@ -109,6 +113,40 @@ class ZenossAPI():
 		raise Exception("No te cap comentari");
 	else:
 		return comment
+
+
+    def get_deviceMaintWindows(self,device_uid):
+	mw_list_p = self._simple_get_request(device_uid+"/maintenanceWindows/")
+	mw_list=mw_list_p[23:-2].split(">, <MaintenanceWindow at ")
+	l_mw=[]
+	mw={}
+	if mw_list[0] == '':
+		return []
+	
+	for i in mw_list:
+		name = self._simple_get_request(i+"/getProperty?id=name")
+		start = self._simple_get_request(i+"/getProperty?id=start")
+		duration = self._simple_get_request(i+"/getProperty?id=duration")
+		mw["nom"]=name
+		mw["start"]=start
+		mw["duration"]=duration
+		l_mw.append(mw)
+		mw={}
+	return l_mw
+
+    def is_inMaintenanceWindow(self, device_uid):
+#	mw = get_deviceMaintWindows(device_uid)
+ #       for w in mw:
+  #              sta_time=datetime.fromtimestamp(float(w["start"]))
+   #             end_time=sta_time+timedelta(minutes=float(w["duration"]))
+    #            if datetime.now() < end_time and datetime.now() > sta_time: # Miram si estam en hora...
+#			return "True"
+#	return "False"	
+	status=self._simple_get_request(device_uid+"/getProductionStateString")
+	if status=="Maintenance":
+		return "True"
+	else:
+		return "False"
 
     def add_device(self, deviceName, deviceClass):
         data = dict(deviceName=deviceName, deviceClass=deviceClass)

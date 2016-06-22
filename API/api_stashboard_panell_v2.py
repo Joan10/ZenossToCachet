@@ -6,6 +6,7 @@ import requests
 import unittest
 import random
 import os
+import sys
 from os import listdir
 from os.path import isfile, join
 from subprocess import Popen, PIPE
@@ -23,10 +24,12 @@ class api_stashboard_panell:
 
 	
 	user="joan.arbona@uib.es"
+	pas=""
 
-	def __init__(self, url, token):
+	def __init__(self, url, token, pas):
 		self.base_url = url
 		self.headers = {'content-type': 'application/json', 'X-Cachet-Token' :token}
+		self.pas=pas
 
 	def preprocess(self, nomservei):
 		ret=nomservei	
@@ -60,7 +63,9 @@ class api_stashboard_panell:
 			return "null" # Retornam null si no existeix.
 		return "null"		
 
-	def componentEnManteniment(self,cid):
+
+	
+	def componentEnManteniment0(self,cid):
 
 		# Retorna True si el dispositiu esta en manteniment. Aixo es que tingui a la descripcio
 		# l'item STR_MAINT(**Servei en manteniment**)
@@ -74,17 +79,25 @@ class api_stashboard_panell:
 		else:
 			return "False"
 
+
+
+
 	def posaComponentEnManteniment(self,cid):
 
 		# Posa el component en Manteniment.
 		# Bàsicament, modifica el camp description i hi posa davant l'string STR_MAINT
 		# cid: ID del component a posar en manteniment.
 
-                append_url="/api/v1/components/"+str(cid) # Primer cal treure la descripcio i l'status.
-		r1 = requests.get(self.base_url+append_url, headers=self.headers, verify=self.VER)
-                data = json.dumps({"id":cid, "status": json.loads(r1.text)['data']['status'],"description": STR_MAINT+" "+ json.loads(r1.text)['data']['description']})
+                #append_url="/api/v1/components/"+str(cid) # Primer cal treure la descripcio i l'status.
+		#r1 = requests.get(self.base_url+append_url, headers=self.headers, verify=self.VER)
+                #data = json.dumps({"id":cid, "status": json.loads(r1.text)['data']['status'],"description": STR_MAINT+" "+ json.loads(r1.text)['data']['description']})
+                #append_url="/api/v1/components/"+str(cid)
+                #r2 = requests.put(self.base_url+append_url, data=data, headers=self.headers, verify=self.VER)
+
+		# Posa component amb id passat a l'estat de MANTENIMENT
+                data = json.dumps({"id":cid, "status":3})
                 append_url="/api/v1/components/"+str(cid)
-                r2 = requests.put(self.base_url+append_url, data=data, headers=self.headers, verify=self.VER)
+                r = requests.put(self.base_url+append_url, data=data, headers=self.headers, verify=self.VER)
 
 	def llevaComponentDeManteniment(self,cid):
 
@@ -219,11 +232,37 @@ class api_stashboard_panell:
 	# Totalment diferent. En aquest cas feim una crida al sistema per executar un script que prepara un webinject. Per tant, l'afegito
 	# de l'schedule es fa per HTTP, no per l'API de REST, ja que aquesta encara no està disponible.
 	# nom: nom del dispositiu
-	# missatge: descripcio
+	# missatge: descripció
 	# date: data d'inici del manteniment. Format DD/MM/YYYY HH:MM
 	#
-		comanda="/bin/bash "+MAIN_PATH+"API/webinject/webinject0.sh "+self.base_url+" \""+nom+"\" \""+missatge+"\" \""+date+"\""
+        	reload(sys)
+	        sys.setdefaultencoding("utf-8") # FUCK YOU python
+		comanda="/bin/bash "+MAIN_PATH+"API/webinject/webinject0.sh "+self.base_url+" \""+nom+"\" \""+missatge+"\" \""+date+"\"  \""+self.pas+"\""
 		return Popen(comanda, stdout=PIPE, shell=True)
+
+	def treuIdFromSchedule(self, nom, sch_at):
+	# Treu l'schedule de api/v1/incidents/id filtrant els incidents amb human_status Scheduled i status 0
+        # nom: nom del dispositiu
+	# sch_at: data de la forma YYYY-MM-DD HH:MM:SS
+
+                append_url="/api/v1/incidents"
+
+                r = requests.get(self.base_url+append_url, headers=self.headers, verify=self.VER)
+                try:
+                        while r != None:
+                        # Iteram per tots els incidents fins trobar el que conicideix el nom amb el passat per 
+                        # paràmetre i es un schedule
+				
+                                for inc in json.loads(r.text)['data']:
+                                        if nom == inc["name"] and inc["human_status"] == "Scheduled" and inc["status"] == 0 and inc["scheduled_at"] == sch_at:
+                                                return inc["id"]
+                                r = requests.get(json.loads(r.text)['meta']['pagination']['links']['next_page'], headers=self.headers, verify=self.VER)
+                except:
+                        return "null"
+                return "null"
+		
+
+
 
  	def eliminaIncident(self, id):
 	#Retorna l'estat del servei: up o down.
@@ -325,6 +364,8 @@ class api_stashboard_panell:
 			return "up"
 		elif  json.loads(r.text)['data']['status'] == 2:
 			return "perf"
+		elif json.loads(r.text)['data']['status'] == 3:
+			return "maint"
 		else:
 			return "down"
 
