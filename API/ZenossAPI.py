@@ -124,14 +124,15 @@ class ZenossAPI():
 		return []
 	
 	for i in mw_list:
-		name = self._simple_get_request(i+"/getProperty?id=name")
-		start = self._simple_get_request(i+"/getProperty?id=start")
-		duration = self._simple_get_request(i+"/getProperty?id=duration")
-		mw["nom"]=name
-		mw["start"]=start
-		mw["duration"]=duration
-		l_mw.append(mw)
-		mw={}
+		if self._simple_get_request(i+"/isActive") == "True":
+			name = self._simple_get_request(i+"/getProperty?id=name")
+			start = self._simple_get_request(i+"/getProperty?id=start")
+			duration = self._simple_get_request(i+"/getProperty?id=duration")
+			mw["nom"]=name
+			mw["start"]=start
+			mw["duration"]=duration
+			l_mw.append(mw)
+			mw={}
 	return l_mw
 
     def is_inMaintenanceWindow(self, device_uid):
