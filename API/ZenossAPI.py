@@ -115,6 +115,12 @@ class ZenossAPI():
 		return comment
 
 
+    def isMaintWindowActive(self,id):
+	if self._simple_get_request(id+"/maintenanceWindowDetail").find("<td class=\"tablevalues\">True</td>") > -1:
+		return "True"
+	else:
+		return "False"
+
     def get_deviceMaintWindows(self,device_uid):
 	mw_list_p = self._simple_get_request(device_uid+"/maintenanceWindows/")
 	mw_list=mw_list_p[23:-2].split(">, <MaintenanceWindow at ")
@@ -124,19 +130,19 @@ class ZenossAPI():
 		return []
 	
 	for i in mw_list:
-                try:   
-                        if self._simple_get_request(i+"/isActive?") == "True":
-                                name = self._simple_get_request(i+"/getProperty?id=name")
-                                start = self._simple_get_request(i+"/getProperty?id=start")
-                                duration = self._simple_get_request(i+"/getProperty?id=duration")
-                                mw["nom"]=name
-                                mw["start"]=start
-                                mw["duration"]=duration
-                                l_mw.append(mw)
-                                mw={}
-                except:
-                        pass
-
+		try:
+			if self.isMaintWindowActive(i) == "True":
+				name = self._simple_get_request(i+"/getProperty?id=name")
+				start = self._simple_get_request(i+"/getProperty?id=start")
+				duration = self._simple_get_request(i+"/getProperty?id=duration")
+				mw["nom"]=name
+				mw["start"]=start
+				mw["duration"]=duration
+				l_mw.append(mw)
+				mw={}
+		except:
+			pass
+		
 	return l_mw
 
     def is_inMaintenanceWindow(self, device_uid):
