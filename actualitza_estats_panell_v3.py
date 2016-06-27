@@ -60,28 +60,34 @@ def actualitza_schedule(st, nomservei, mw, cachet_win):
 		sta_time=datetime.fromtimestamp(float(w["start"]))
 		end_time=sta_time+timedelta(minutes=float(w["duration"]))
 		
-		if st.treuIdFromSchedule(w["nom"],end_time.strftime("%Y-%m-%d %H:%M:%S")) == "null":
+		if st.treuIdFromSchedule(nomservei,sta_time.strftime("%Y-%m-%d %H:%M:%S")) == "null":
 			if datetime.now() < end_time: # Només cream l'schedule si el maint window segueix vigent.
 				msg="El servei "+nomservei+" estarà aturat per tasques de manteniment des del dia "+sta_time.strftime("%d-%m-%Y")+" a les "+sta_time.strftime("%H:%M")+" fins el dia "+end_time.strftime("%d-%m-%Y")+" a les "+ end_time.strftime("%H:%M")+"."
 
-				st.ReportaSchedule(w["nom"],msg,end_time.strftime("%d/%m/%Y %H:%M"))
+				st.ReportaSchedule(nomservei,msg,sta_time.strftime("%d/%m/%Y %H:%M"))
 
-	print "--c"
-	print cachet_win
-	print "--mw"
-	print mw
+#	print "--c"
+#	print cachet_win
+#	print "--mw"
+#	print mw
 	for c in cachet_win:
+		print "nova it"
 		i=0
 		trobat="False"
 		while trobat == "False" and i<len(mw):
 			w=mw[i]
 	                sta_time=datetime.fromtimestamp(float(w["start"]))
 	                end_time=sta_time+timedelta(minutes=float(w["duration"]))
-			print end_time
+			print sta_time
 			print c["scheduled_at"]
-			if c["nom"] == w["nom"] and end_time.strftime("%d-%m-%Y %H:%M:%S") == c["scheduled_at"]:
-				trobat == "True"
+			print "---"
+			print w["nom"]
+			print c["nom"]
+			if c["nom"] == nomservei and sta_time.strftime("%Y-%m-%d %H:%M:%S") == c["scheduled_at"]:
+				print "uep"
+				trobat = "True"
 			i=i+1
+		print "trobat:"+trobat
 		if trobat == "False":
 			print "elimina"
 			st.eliminaIncident(c["id"])
@@ -94,7 +100,7 @@ def actualitza(st, id, nom, znom, perfok, aixeca):
 # 2. El servei torna a funcionar correctament. aixeca = 1, perfok = 1
 # 3. El servei NO funciona. Aixeca = 0, perfok=X
 # SI el component està en manteniment, el posam en l'estat que toca i no hi feim canvis.
-#	
+#
 	maint = zp.is_inMaintenanceWindow(zp.get_UID(znom))
 	if maint == "True":
 		if st.getEstatId(id) != "maint":
@@ -109,8 +115,14 @@ def actualitza(st, id, nom, znom, perfok, aixeca):
         	        else:
                 	        if st.getEstatId(id) != "up":
 					# Cas en que el servei torna a funcionar
-					st.AixecaComponent(id)
-					st.ArreglaIncident(nom,id,"El servei funciona correctament.")
+					if st.getEstatId(id) == "maint":				
+						st.AixecaComponent(id)
+                                                st.ArreglaIncident(nom,"El període de manteniment ha finalitzat amb èxit.")
+					else:
+                                                st.AixecaComponent(id)
+                                                st.ArreglaIncident(nom,"El servei funciona correctament.",id)
+
+
         	else:
                		if st.getEstatId(id) != "down":
 			# Cas en que el servei deixa de funcionar
@@ -122,7 +134,7 @@ for disp in root.findall('dispositiu'):
 	aixeca = 1 # Variable per saber si hem d'aixecar o no el servei en qüestoó
 	perfok = 1 # Variable per saber si el servei té un rendiment correcte
 	scheduled_at = ""
-	if disp.text != "udp.sint.uib.ess":
+	if disp.text == "udp.sint.uib.es":
 	#if disp.text != "udp.sint.uib.es":
 		try:
 			# Parsejam el nom del dispositiu. Aquest anirà contingut dins el camp Comments del Zenoss de la forma següent:

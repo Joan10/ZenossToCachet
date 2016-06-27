@@ -205,17 +205,22 @@ class api_stashboard_panell:
                 append_url="/api/v1/incidents"
                 r = requests.post(self.base_url+append_url, data=data, headers=self.headers, verify=self.VER)
 
-	def ArreglaIncident(self, nom, id, missatge):
+	def ArreglaIncident(self, nom, missatge, id="null"):
 		
 		# Crea incident amb el missatge passat i de nom "nom" i s'assigna al component amb id "id".
 		# El crea amb status=4, fixed.
 		# nom: nom de l'incident.
 		# id: id del component relacionat amb l'incident
 		# missatge: missatge que donam a l'incident.
-
-                data = json.dumps({"name":nom,"message":missatge,"status":4,"component_id":id})
+		if id != "null":
+	                data = json.dumps({"name":nom,"message":missatge,"status":4,"component_id":id})
+		else:
+			data = json.dumps({"name":nom,"message":missatge,"status":4})
                 append_url="/api/v1/incidents"
                 r = requests.post(self.base_url+append_url, data=data, headers=self.headers, verify=self.VER)
+
+
+
 
 
 	def ReportaIncidentManteniment(self, nom, id, missatge):
@@ -276,11 +281,18 @@ class api_stashboard_panell:
                         while r != None:
                         # Iteram per tots els incidents fins trobar el que conicideix el nom amb el passat per 
                         # paràmetre i es un schedule
-
                                 for inc in json.loads(r.text)['data']:
-					dt_schat = datetime.strptime(inc["scheduled_at"],"%Y-%m-%d %H:%M:%S")
+					# Treim l'endtime de la descripció de l'incident
+					try:
+						dt_schat = datetime.strptime(inc["scheduled_at"],"%Y-%m-%d %H:%M:%S")
+						str1=inc["message"][inc["message"].find("fins el dia")+len("fins el dia "):] 
+						data=str1[:str1.find(" a les ")]
+						hora=str1[str1.find(" a les ")+len(" a les "):-1]
+						dt_endtime=datetime.strptime(data+" "+hora, '%d-%m-%Y %H:%M')
+					except:
+						pass
 					if nomcomp == "null":
-	                                        if inc["human_status"] == "Scheduled" and inc["status"] == 0 and datetime.now() < dt_schat:
+	                                        if inc["human_status"] == "Scheduled" and inc["status"] == 0 and datetime.now() < dt_endtime:
 							ls["nom"] = inc["name"]
 							ls["missatge"] = inc["message"]
 							ls["scheduled_at"] = inc["scheduled_at"]
@@ -288,7 +300,7 @@ class api_stashboard_panell:
 							llista_ls.append(ls)
 							ls = {}
 					else:
-		                                if inc["message"].find(nomcomp) > -1 and inc["human_status"] == "Scheduled" and inc["status"] == 0 and datetime.now() < dt_schat:
+		                                if inc["message"].find(nomcomp) > -1 and inc["human_status"] == "Scheduled" and inc["status"] == 0 and datetime.now() < dt_endtime:
 							ls["nom"] = inc["name"]
 							ls["missatge"] = inc["message"]
 							ls["scheduled_at"] = inc["scheduled_at"]
@@ -300,7 +312,7 @@ class api_stashboard_panell:
                                 r = requests.get(json.loads(r.text)['meta']['pagination']['links']['next_page'], headers=self.headers, verify=self.VER)
 
 		except Exception as e:
-	                print("Error:", e)
+	         #       print("Error:", e)
 			pass
 			
 		return llista_ls
