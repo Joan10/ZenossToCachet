@@ -51,9 +51,10 @@ zp=ZenossAPI.ZenossAPI()
 # 
 
 
-def actualitza_schedule(st, nomservei, mw):
+def actualitza_schedule(st, nomservei, mw, cachet_win):
 	reload(sys) # fuck you python
 	sys.setdefaultencoding("utf-8")
+
 
 	for w in mw:
 		sta_time=datetime.fromtimestamp(float(w["start"]))
@@ -64,6 +65,26 @@ def actualitza_schedule(st, nomservei, mw):
 				msg="El servei "+nomservei+" estarà aturat per tasques de manteniment des del dia "+sta_time.strftime("%d-%m-%Y")+" a les "+sta_time.strftime("%H:%M")+" fins el dia "+end_time.strftime("%d-%m-%Y")+" a les "+ end_time.strftime("%H:%M")+"."
 
 				st.ReportaSchedule(w["nom"],msg,end_time.strftime("%d/%m/%Y %H:%M"))
+
+	print "--c"
+	print cachet_win
+	print "--mw"
+	print mw
+	for c in cachet_win:
+		i=0
+		trobat="False"
+		while trobat == "False" and i<len(mw):
+			w=mw[i]
+	                sta_time=datetime.fromtimestamp(float(w["start"]))
+	                end_time=sta_time+timedelta(minutes=float(w["duration"]))
+			print end_time
+			print c["scheduled_at"]
+			if c["nom"] == w["nom"] and end_time.strftime("%d-%m-%Y %H:%M:%S") == c["scheduled_at"]:
+				trobat == "True"
+			i=i+1
+		if trobat == "False":
+			print "elimina"
+			st.eliminaIncident(c["id"])
 
 def actualitza(st, id, nom, znom, perfok, aixeca):
 # 
@@ -191,9 +212,9 @@ for disp in root.findall('dispositiu'):
                 #########################################################
 		mw=zp.get_deviceMaintWindows(zp.get_UID(disp.text))
 
-		actualitza_schedule(st,nom,mw)
+		actualitza_schedule(st,nom,mw,st.treuLlistaSchedule(nom))
 		actualitza(st,id,nom,disp.text,perfok,aixeca)
 		if nompublic != "null":
-			actualitza_schedule(st2,nompublic,mw)
+			actualitza_schedule(st2,nompublic,mw,st2.treuLlistaSchedule(nompublic))
 			actualitza(st2,id2,nompublic,disp.text,perfok,aixeca)
 

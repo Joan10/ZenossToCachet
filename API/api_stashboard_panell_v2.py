@@ -7,6 +7,7 @@ import unittest
 import random
 import os
 import sys
+from datetime import datetime, timedelta, time
 from os import listdir
 from os.path import isfile, join
 from subprocess import Popen, PIPE
@@ -261,8 +262,48 @@ class api_stashboard_panell:
                         return "null"
                 return "null"
 		
+	def treuLlistaSchedule(self, nomcomp = "null"):
+	# Treu la llista de Schedules. Si se li passa un nom, ho filtra per dispositiu.
+	# nomcomponent: nom del COMPONENT (no del dispositiu den Zenoss) el que apareix a la descripció.
+	# 
+                append_url="/api/v1/incidents"
 
+		ls = {}
+		llista_ls = []
 
+                r = requests.get(self.base_url+append_url, headers=self.headers, verify=self.VER)
+                try:   
+                        while r != None:
+                        # Iteram per tots els incidents fins trobar el que conicideix el nom amb el passat per 
+                        # paràmetre i es un schedule
+
+                                for inc in json.loads(r.text)['data']:
+					dt_schat = datetime.strptime(inc["scheduled_at"],"%Y-%m-%d %H:%M:%S")
+					if nomcomp == "null":
+	                                        if inc["human_status"] == "Scheduled" and inc["status"] == 0 and datetime.now() < dt_schat:
+							ls["nom"] = inc["name"]
+							ls["missatge"] = inc["message"]
+							ls["scheduled_at"] = inc["scheduled_at"]
+							ls["id"] = inc["id"]
+							llista_ls.append(ls)
+							ls = {}
+					else:
+		                                if inc["message"].find(nomcomp) > -1 and inc["human_status"] == "Scheduled" and inc["status"] == 0 and datetime.now() < dt_schat:
+							ls["nom"] = inc["name"]
+							ls["missatge"] = inc["message"]
+							ls["scheduled_at"] = inc["scheduled_at"]
+							ls["id"] = inc["id"]
+							llista_ls.append(ls)
+							ls = {}
+						
+                                                
+                                r = requests.get(json.loads(r.text)['meta']['pagination']['links']['next_page'], headers=self.headers, verify=self.VER)
+
+		except Exception as e:
+	                print("Error:", e)
+			pass
+			
+		return llista_ls
 
  	def eliminaIncident(self, id):
 	#Retorna l'estat del servei: up o down.
