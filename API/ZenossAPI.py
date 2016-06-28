@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+ -*- coding: utf-8 -*-
 
 import json
 #import schedule
@@ -137,14 +137,14 @@ class ZenossAPI():
 				name = self._simple_get_request(i+"/getProperty?id=name")
 				start = self._simple_get_request(i+"/getProperty?id=start")
 				duration = self._simple_get_request(i+"/getProperty?id=duration")
-			#	mw=schedule(name=name)
-			#	mw.fromDuration(start_time=start, component=device_uid, duration=duration, cachet_id=i)
-				mw["nom"]=name
-				mw["start"]=start
-				mw["duration"]=duration
-				mw["id"]=i
+				mw=schedule(name=name)
+				mw.fromDuration(start_time=start, component=device_uid, duration=duration, cachet_id=i)
+				#mw["nom"]=name
+				#mw["start"]=start
+				#mw["duration"]=duration
+				#mw["id"]=i
 				l_mw.append(mw)
-				mw={}
+				#mw={}
 			else:
 				print "not active"
 		except:

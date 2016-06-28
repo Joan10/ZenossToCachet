@@ -7,6 +7,7 @@ import unittest
 import random
 import os
 import sys
+import schedule
 from datetime import datetime, timedelta, time
 from os import listdir
 from os.path import isfile, join
@@ -233,7 +234,7 @@ class api_stashboard_panell:
                 append_url="/api/v1/incidents"
                 r = requests.post(self.base_url+append_url, data=data, headers=self.headers, verify=self.VER)
 
-	def ReportaSchedule(self, nom, missatge, date):
+	def ReportaSchedule(self, sche):
 	#
 	# Totalment diferent. En aquest cas feim una crida al sistema per executar un script que prepara un webinject. Per tant, l'afegito
 	# de l'schedule es fa per HTTP, no per l'API de REST, ja que aquesta encara no està disponible.
@@ -243,10 +244,10 @@ class api_stashboard_panell:
 	#
         	reload(sys)
 	        sys.setdefaultencoding("utf-8") # FUCK YOU python
-		comanda="/bin/bash "+MAIN_PATH+"API/webinject/webinject0.sh "+self.base_url+" \""+nom+"\" \""+missatge+"\" \""+date+"\"  \""+self.pas+"\""
+		comanda="/bin/bash "+MAIN_PATH+"API/webinject/webinject0.sh "+self.base_url+" \""+sche.treuName()+"\" \""+sche.treuMessage()+"\" \""+sche.treuStartTime()+"\"  \""+self.pas+"\""
 		return Popen(comanda, stdout=PIPE, shell=True)
 
-	def treuIdFromSchedule(self, nom, sch_at):
+	def treuIdFromSchedule(self, nom, sche):
 	# Treu l'schedule de api/v1/incidents/id filtrant els incidents amb human_status Scheduled i status 0
         # nom: nom del dispositiu
 	# sch_at: data de la forma YYYY-MM-DD HH:MM:SS
@@ -260,7 +261,7 @@ class api_stashboard_panell:
                         # Iteram per tots els incidents fins trobar el que conicideix el nom amb el passat per 
                         # paràmetre i es un schedule
                                 for inc in json.loads(r.text)['data']:
-                                        if nom == inc["name"] and inc["human_status"] == "Scheduled" and inc["status"] == 0 and inc["scheduled_at"] == sch_at:
+                                        if nom == inc["name"] and inc["human_status"] == "Scheduled" and inc["status"] == 0 and inc["scheduled_at"] == sche.treuStartTime():
                                                 return inc["id"]
                                 r = requests.get(json.loads(r.text)['meta']['pagination']['links']['next_page'], headers=self.headers, verify=self.VER)
                 except:
