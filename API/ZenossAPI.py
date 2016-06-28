@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import json
+#import schedule
 
 import urllib
 import urllib2
@@ -126,6 +127,7 @@ class ZenossAPI():
 	mw_list=mw_list_p[23:-2].split(">, <MaintenanceWindow at ")
 	l_mw=[]
 	mw={}
+	
 	if mw_list[0] == '':
 		return []
 	
@@ -135,9 +137,12 @@ class ZenossAPI():
 				name = self._simple_get_request(i+"/getProperty?id=name")
 				start = self._simple_get_request(i+"/getProperty?id=start")
 				duration = self._simple_get_request(i+"/getProperty?id=duration")
+			#	mw=schedule(name=name)
+			#	mw.fromDuration(start_time=start, component=device_uid, duration=duration, cachet_id=i)
 				mw["nom"]=name
 				mw["start"]=start
 				mw["duration"]=duration
+				mw["id"]=i
 				l_mw.append(mw)
 				mw={}
 			else:
@@ -149,18 +154,18 @@ class ZenossAPI():
 	return l_mw
 
     def is_inMaintenanceWindow(self, device_uid):
-#	mw = get_deviceMaintWindows(device_uid)
- #       for w in mw:
-  #              sta_time=datetime.fromtimestamp(float(w["start"]))
-   #             end_time=sta_time+timedelta(minutes=float(w["duration"]))
-    #            if datetime.now() < end_time and datetime.now() > sta_time: # Miram si estam en hora...
-#			return "True"
-#	return "False"	
-	status=self._simple_get_request(device_uid+"/getProductionStateString")
-	if status=="Maintenance":
-		return "True"
-	else:
-		return "False"
+	mw = self.get_deviceMaintWindows(device_uid)
+        for w in mw:
+                sta_time=datetime.fromtimestamp(float(w["start"]))
+                end_time=sta_time+timedelta(minutes=float(w["duration"]))
+                if datetime.now() < end_time and datetime.now() > sta_time and self.isMaintWindowActive(w["id"]) == "True": # Miram si estam en hora...
+			return "True"
+	return "False"	
+#	status=self._simple_get_request(device_uid+"/getProductionStateString")
+#	if status=="Maintenance":
+#		return "True"
+#	else:
+#		return "False"
 
     def add_device(self, deviceName, deviceClass):
         data = dict(deviceName=deviceName, deviceClass=deviceClass)

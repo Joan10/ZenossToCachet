@@ -250,6 +250,7 @@ class api_stashboard_panell:
 	# Treu l'schedule de api/v1/incidents/id filtrant els incidents amb human_status Scheduled i status 0
         # nom: nom del dispositiu
 	# sch_at: data de la forma YYYY-MM-DD HH:MM:SS
+	# end_time: datetime
 
                 append_url="/api/v1/incidents"
 
@@ -258,7 +259,6 @@ class api_stashboard_panell:
                         while r != None:
                         # Iteram per tots els incidents fins trobar el que conicideix el nom amb el passat per 
                         # paràmetre i es un schedule
-				
                                 for inc in json.loads(r.text)['data']:
                                         if nom == inc["name"] and inc["human_status"] == "Scheduled" and inc["status"] == 0 and inc["scheduled_at"] == sch_at:
                                                 return inc["id"]
@@ -266,6 +266,13 @@ class api_stashboard_panell:
                 except:
                         return "null"
                 return "null"
+
+
+	def treuEndTime(self, msg):
+		str1=msg[msg.find("fins el dia")+len("fins el dia "):]
+                data=str1[:str1.find(" a les ")]
+                hora=str1[str1.find(" a les ")+len(" a les "):-1]
+		return datetime.strptime(data+" "+hora, '%d-%m-%Y %H:%M')
 		
 	def treuLlistaSchedule(self, nomcomp = "null"):
 	# Treu la llista de Schedules. Si se li passa un nom, ho filtra per dispositiu.
@@ -285,10 +292,7 @@ class api_stashboard_panell:
 					# Treim l'endtime de la descripció de l'incident
 					try:
 						dt_schat = datetime.strptime(inc["scheduled_at"],"%Y-%m-%d %H:%M:%S")
-						str1=inc["message"][inc["message"].find("fins el dia")+len("fins el dia "):] 
-						data=str1[:str1.find(" a les ")]
-						hora=str1[str1.find(" a les ")+len(" a les "):-1]
-						dt_endtime=datetime.strptime(data+" "+hora, '%d-%m-%Y %H:%M')
+						dt_endtime=self.treuEndTime(inc["message"])
 					except:
 						pass
 					if nomcomp == "null":

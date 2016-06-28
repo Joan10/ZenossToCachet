@@ -59,11 +59,9 @@ def actualitza_schedule(st, nomservei, mw, cachet_win):
 	for w in mw:
 		sta_time=datetime.fromtimestamp(float(w["start"]))
 		end_time=sta_time+timedelta(minutes=float(w["duration"]))
-		
 		if st.treuIdFromSchedule(nomservei,sta_time.strftime("%Y-%m-%d %H:%M:%S")) == "null":
 			if datetime.now() < end_time: # Només cream l'schedule si el maint window segueix vigent.
 				msg="El servei "+nomservei+" estarà aturat per tasques de manteniment des del dia "+sta_time.strftime("%d-%m-%Y")+" a les "+sta_time.strftime("%H:%M")+" fins el dia "+end_time.strftime("%d-%m-%Y")+" a les "+ end_time.strftime("%H:%M")+"."
-
 				st.ReportaSchedule(nomservei,msg,sta_time.strftime("%d/%m/%Y %H:%M"))
 
 #	print "--c"
@@ -78,11 +76,14 @@ def actualitza_schedule(st, nomservei, mw, cachet_win):
 			w=mw[i]
 	                sta_time=datetime.fromtimestamp(float(w["start"]))
 	                end_time=sta_time+timedelta(minutes=float(w["duration"]))
+			print "---"
 			print sta_time
 			print c["scheduled_at"]
-			print "---"
 			print w["nom"]
 			print c["nom"]
+			print end_time
+			print st.treuEndTime(c["missatge"])
+			print "---"
 			if c["nom"] == nomservei and sta_time.strftime("%Y-%m-%d %H:%M:%S") == c["scheduled_at"]:
 				print "uep"
 				trobat = "True"
@@ -106,6 +107,8 @@ def actualitza(st, id, nom, znom, perfok, aixeca):
 		if st.getEstatId(id) != "maint":
 			st.posaComponentEnManteniment(id)
 	else:
+		if st.getEstatId(id) == "maint":
+			st.ArreglaIncident(nom,"El període de manteniment ha finalitzat amb èxit.",id)
 		if aixeca == 1:
         		if perfok == 0:
                 		if st.getEstatId(id) != "perf":
@@ -115,12 +118,8 @@ def actualitza(st, id, nom, znom, perfok, aixeca):
         	        else:
                 	        if st.getEstatId(id) != "up":
 					# Cas en que el servei torna a funcionar
-					if st.getEstatId(id) == "maint":				
-						st.AixecaComponent(id)
-                                                st.ArreglaIncident(nom,"El període de manteniment ha finalitzat amb èxit.")
-					else:
-                                                st.AixecaComponent(id)
-                                                st.ArreglaIncident(nom,"El servei funciona correctament.",id)
+                                        st.AixecaComponent(id)
+                                        st.ArreglaIncident(nom,"El servei funciona correctament.",id)
 
 
         	else:
@@ -227,6 +226,6 @@ for disp in root.findall('dispositiu'):
 		actualitza_schedule(st,nom,mw,st.treuLlistaSchedule(nom))
 		actualitza(st,id,nom,disp.text,perfok,aixeca)
 		if nompublic != "null":
-			actualitza_schedule(st2,nompublic,mw,st2.treuLlistaSchedule(nompublic))
+			#actualitza_schedule(st2,nompublic,mw,st2.treuLlistaSchedule(nompublic))
 			actualitza(st2,id2,nompublic,disp.text,perfok,aixeca)
 
