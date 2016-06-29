@@ -50,50 +50,50 @@ zp=ZenossAPI.ZenossAPI()
 # De comentari afegeix el nom del dispositiu, la data d'inici de l'aturada i la data de final.
 # 
 
+STR_FORMAT="El servei %s estarà aturat per tasques de manteniment des del dia %s a les %s fins el dia %s a les %s."
 
-def actualitza_schedule(st, nomservei, mw, cachet_win):
+def actualitza_schedule(st, nomservei, l_sch_zenoss, l_sch_cachet):
 	reload(sys) # fuck you python
 	sys.setdefaultencoding("utf-8")
+	# Passam dues llistes d'schedules, la del cachet i la del zenoss, i les comparam.
+	# Si a la llista de zenoss n'hi ha algun que no existeix al cachet, cream l'schedule al cachet
+	# Si a la llista de cachet n'hi ha algun que no és al zenoss, borram la del cachet
 
-
-	for w in mw:
-		sta_time=datetime.fromtimestamp(float(w["start"]))
-		end_time=sta_time+timedelta(minutes=float(w["duration"]))
-		if st.treuIdFromSchedule(nomservei,sta_time.strftime("%Y-%m-%d %H:%M:%S")) == "null":
-			if datetime.now() < end_time: # Només cream l'schedule si el maint window segueix vigent.
-				msg="El servei "+nomservei+" estarà aturat per tasques de manteniment des del dia "+sta_time.strftime("%d-%m-%Y")+" a les "+sta_time.strftime("%H:%M")+" fins el dia "+end_time.strftime("%d-%m-%Y")+" a les "+ end_time.strftime("%H:%M")+"."
-				st.ReportaSchedule(nomservei,msg,sta_time.strftime("%d/%m/%Y %H:%M"))
-
-#	print "--c"
-#	print cachet_win
-#	print "--mw"
-#	print mw
-	for c in cachet_win:
-		print "nova it"
+	for z in l_sch_zenoss:
+	# Recorrem la llista d'schedules del zenoss per afegir els que toqui al cachet
 		i=0
-		trobat="False"
-		while trobat == "False" and i<len(mw):
-			w=mw[i]
-	                sta_time=datetime.fromtimestamp(float(w["start"]))
-	                end_time=sta_time+timedelta(minutes=float(w["duration"]))
-			print "---"
-			print sta_time
-			print c["scheduled_at"]
-			print w["nom"]
-			print c["nom"]
-			print end_time
-			print st.treuEndTime(c["missatge"])
-			print "---"
-			if c["nom"] == nomservei and sta_time.strftime("%Y-%m-%d %H:%M:%S") == c["scheduled_at"]:
-				print "uep"
-				trobat = "True"
+                trobat=False
+		while trobat == False and i<len(l_sch_cachet):
+		# Recorrem la llista del cachet
+			c=l_sch_cachet[i]
+			if c["start"] == z["start"] and c["end"] == z["end"]:
+				trobat=True
 			i=i+1
-		print "trobat:"+trobat
-		if trobat == "False":
-			print "elimina"
+		if trobat == False:
+			msg=STR_FORMAT % (nomservei, z["start"].strftime("%d-%m-%Y"), z["start"].strftime("%H:%M"), z["end"].strftime("%d-%m-%Y"), z["end"].strftime("%H:%M")) 
+			# Formatejam el missatge i cream l'schedule
+                        st.ReportaSchedule(nomservei,msg,z["start"].strftime("%d/%m/%Y %H:%M"))
+
+        for c in l_sch_cachet:
+	# Recorrem la llista d'schedules del cachet per afegir els que toqui al cachet
+                i=0
+                trobat=False
+                while trobat == False and i<len(l_sch_zenoss):
+		# Recorrem la llista del zenoss
+                        z=l_sch_zenoss[i]
+                        if c["start"] == z["start"] and c["end"] == z["end"]:
+                                trobat=True
+                        i=i+1
+                if trobat == False:
 			st.eliminaIncident(c["id"])
 
-def actualitza(st, id, nom, znom, perfok, aixeca):
+			
+
+
+
+
+
+def actualitza_component(st, id, nom, znom, perfok, aixeca):
 # 
 # Funció que actualitza l'estat dels components i incidents del Cachet en funció de tres flags: perfok, aixeca i maint
 # Té en compte els casos en què:
@@ -221,11 +221,11 @@ for disp in root.findall('dispositiu'):
 		##########################################################
 		# Sincronitzam els Maintenance Windows
                 #########################################################
-		mw=zp.get_deviceMaintWindows(zp.get_UID(disp.text))
+		l_sch_zenoss=zp.get_deviceMaintWindows(zp.get_UID(disp.text))
 
-		actualitza_schedule(st,nom,mw,st.treuLlistaSchedule(nom))
-		actualitza(st,id,nom,disp.text,perfok,aixeca)
+		actualitza_schedule(st,nom,l_sch_zenoss,st.treuLlistaSchedule(nom))
+		actualitza_component(st,id,nom,disp.text,perfok,aixeca)
 		if nompublic != "null":
-			#actualitza_schedule(st2,nompublic,mw,st2.treuLlistaSchedule(nompublic))
-			actualitza(st2,id2,nompublic,disp.text,perfok,aixeca)
+			#actualitza_schedule(st2,nompublic,l_sch_zenoss,st2.treuLlistaSchedule(nompublic))
+			actualitza_component(st2,id2,nompublic,disp.text,perfok,aixeca)
 

@@ -105,7 +105,7 @@ class ZenossAPI():
 		len=i['path'].find("serveis/serveis_critics/")
 		if len > -1:
 			return i['path'][len+23:].replace("/","")
-	raise Exception("No esta dins cap grup")
+	raise Exception("No esta Dins cap grup")
 			
     def get_devicecomment(self, device_uid):
 	# Se li ha de passar forçosament un uid de Device Class
@@ -134,20 +134,21 @@ class ZenossAPI():
 	for i in mw_list:
 		try:
 			if self.isMaintWindowActive(i) == "True":
-				name = self._simple_get_request(i+"/getProperty?id=name")
-				start = self._simple_get_request(i+"/getProperty?id=start")
-				duration = self._simple_get_request(i+"/getProperty?id=duration")
-			#	mw=schedule(name=name)
-			#	mw.fromDuration(start_time=start, component=device_uid, duration=duration, cachet_id=i)
-				mw["nom"]=name
-				mw["start"]=start
-				mw["duration"]=duration
-				mw["id"]=i
-				l_mw.append(mw)
-				mw={}
+				start = datetime.fromtimestamp(float(self._simple_get_request(i+"/getProperty?id=start")))
+				duration = timedelta(minutes=float(self._simple_get_request(i+"/getProperty?id=duration")))
+				if start+duration > datetime.now():
+					name = self._simple_get_request(i+"/getProperty?id=name")
+					mw["nom"]=name
+					mw["start"]=start
+					mw["end"]=start+duration
+					mw["id"]=i
+					l_mw.append(mw)
+					mw={}
+				else:
+					print "obsoleta"
 			else:
 				print "not active"
-		except:
+		except Exception as e:
 			print "no active"
 			pass
 		
@@ -156,8 +157,8 @@ class ZenossAPI():
     def is_inMaintenanceWindow(self, device_uid):
 	mw = self.get_deviceMaintWindows(device_uid)
         for w in mw:
-                sta_time=datetime.fromtimestamp(float(w["start"]))
-                end_time=sta_time+timedelta(minutes=float(w["duration"]))
+                sta_time=w["start"]
+                end_time=w["end"]
                 if datetime.now() < end_time and datetime.now() > sta_time and self.isMaintWindowActive(w["id"]) == "True": # Miram si estam en hora...
 			return "True"
 	return "False"	

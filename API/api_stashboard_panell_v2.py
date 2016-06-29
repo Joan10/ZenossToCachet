@@ -299,7 +299,8 @@ class api_stashboard_panell:
 	                                        if inc["human_status"] == "Scheduled" and inc["status"] == 0 and datetime.now() < dt_endtime:
 							ls["nom"] = inc["name"]
 							ls["missatge"] = inc["message"]
-							ls["scheduled_at"] = inc["scheduled_at"]
+							ls["start"] = dt_schat 
+							ls["end"] = dt_endtime
 							ls["id"] = inc["id"]
 							llista_ls.append(ls)
 							ls = {}
@@ -307,7 +308,8 @@ class api_stashboard_panell:
 		                                if inc["message"].find(nomcomp) > -1 and inc["human_status"] == "Scheduled" and inc["status"] == 0 and datetime.now() < dt_endtime:
 							ls["nom"] = inc["name"]
 							ls["missatge"] = inc["message"]
-							ls["scheduled_at"] = inc["scheduled_at"]
+							ls["start"] = dt_schat 
+							ls["end"] = dt_endtime
 							ls["id"] = inc["id"]
 							llista_ls.append(ls)
 							ls = {}
