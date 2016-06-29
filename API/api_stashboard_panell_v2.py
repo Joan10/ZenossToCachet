@@ -298,26 +298,19 @@ class api_stashboard_panell:
 						pass
 					if nomcomp == "null":
 	                                        if inc["human_status"] == "Scheduled" and inc["status"] == 0 and datetime.now() < dt_endtime:
-							ls["nom"] = inc["name"]
-							ls["missatge"] = inc["message"]
-							ls["scheduled_at"] = inc["scheduled_at"]
-							ls["id"] = inc["id"]
+			                                ls=schedule(name=inc["name"])
+                        			        ls.fromMessage(message=inc["message"], cachet_id=i)
 							llista_ls.append(ls)
-							ls = {}
 					else:
 		                                if inc["message"].find(nomcomp) > -1 and inc["human_status"] == "Scheduled" and inc["status"] == 0 and datetime.now() < dt_endtime:
-							ls["nom"] = inc["name"]
-							ls["missatge"] = inc["message"]
-							ls["scheduled_at"] = inc["scheduled_at"]
-							ls["id"] = inc["id"]
+			                                ls=schedule(name=inc["name"])
+							ls.fromMessage(message=inc["message"], cachet_id=i)
 							llista_ls.append(ls)
-							ls = {}
-						
                                                 
                                 r = requests.get(json.loads(r.text)['meta']['pagination']['links']['next_page'], headers=self.headers, verify=self.VER)
 
 		except Exception as e:
-	         #       print("Error:", e)
+	                print("Error:", e)
 			pass
 			
 		return llista_ls

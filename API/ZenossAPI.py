@@ -1,4 +1,4 @@
- -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 
 import json
 #import schedule
@@ -91,6 +91,7 @@ class ZenossAPI():
         return self._router_request('EventsRouter', 'query', [data])['result']
 
     def get_UID(self, device):
+	# Basta passar-li el nom del dispositiu
         return self._router_request('DeviceRouter', 'getDevices',
                                     data=[{'uid': '/zport/dmd/Groups/serveis/serveis_critics',
                                            'params': {'name': device} }])['result']['devices'][0]['uid']
@@ -107,13 +108,49 @@ class ZenossAPI():
 			return i['path'][len+23:].replace("/","")
 	raise Exception("No esta dins cap grup")
 			
-    def get_devicecomment(self, device_uid):
-	# Se li ha de passar forçosament un uid de Device Class
+    def get_devicecomment(self, device_uid_path):
+	# Se li ha de passar forçosament un uid de Device Class amb el path sencer
         comment=self._router_request('DeviceRouter', 'getInfo',data=[{'uid': device_uid}])['result']['data']['comments']
 	if comment == "":
 		raise Exception("No te cap comentari");
 	else:
 		return comment
+
+    def get_deviceCachetName(self, device_uid_path):
+        # Se li ha de passar forçosament un uid de Device Class amb el path sencer
+		try:   
+                        # Parsejam el nom del dispositiu. Aquest anirà contingut dins el camp Comments del Zenoss de la forma següent:
+                        # cachet=<nom>;
+                        comentari=self.get_devicecomment(device_uid)
+                        offset0=comentari.find("cachet=");
+                        offset1=comentari.find(";");
+                        if offset0 > -1 and offset1 > -1:
+                                nom=comentari[offset0+7:offset1]
+                        else:  
+                                raise Exception("Comentari al Zenoss mal format. El nom va contingut dins cachet=<nom>;")
+			return nom
+
+                except:
+			return "null"
+
+
+    def get_devicePublicName(self, device_uid):
+        # Se li ha de passar forçosament un uid de Device Class amb el path sencer
+                try:   
+                        # Parsejam el nom public del dispositiu. Aquest anirà contingut dins el camp Comments del Zenoss de la forma següent:
+                        # public=<nom>;
+                        comentari=self.get_devicecomment(device_uid)
+                        offset2=comentari.find("public=");
+                        offset3=comentari.find(";",offset2+1)
+                        if offset2 > -1 and offset3 > -1:
+                                nompublic=comentari[offset2+7:offset3]
+                        else:
+                                raise Exception("Comentari al Zenoss mal format. El nom públic va contingut dins public=<nom>;")
+			return nompublic
+
+                except:
+                        return "null"
+
 
 
     def isMaintWindowActive(self,id):
@@ -139,15 +176,10 @@ class ZenossAPI():
 				duration = self._simple_get_request(i+"/getProperty?id=duration")
 				mw=schedule(name=name)
 				mw.fromDuration(start_time=start, component=device_uid, duration=duration, cachet_id=i)
-				#mw["nom"]=name
-				#mw["start"]=start
-				#mw["duration"]=duration
-				#mw["id"]=i
 				l_mw.append(mw)
-				#mw={}
 			else:
 				print "not active"
-		except:
+		except
 			print "no active"
 			pass
 		
