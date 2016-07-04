@@ -7,7 +7,8 @@ import unittest
 import random
 import os
 import sys
-from datetime import datetime, timedelta, time
+import time 
+from datetime import datetime, timedelta
 from os import listdir
 from os.path import isfile, join
 from subprocess import Popen, PIPE
@@ -192,6 +193,14 @@ class api_stashboard_panell:
 		return "null"		
 
 
+        def getIncidentStatus(self, id):
+
+                # Retorna l'status de l'incident
+
+                append_url="/api/v1/incidents/"+str(id)
+		r = requests.get(self.base_url+append_url, headers=self.headers, verify=self.VER)
+		return json.loads(r.text)['data']['status']
+
 
 	def ReportaIncident(self, nom, id, missatge):
 
@@ -244,6 +253,7 @@ class api_stashboard_panell:
         	reload(sys)
 	        sys.setdefaultencoding("utf-8") # FUCK YOU python
 		comanda="/bin/bash "+MAIN_PATH+"API/webinject/webinject0.sh "+self.base_url+" \""+nom+"\" \""+missatge+"\" \""+date+"\"  \""+self.pas+"\""
+		time.sleep(1) # Si no posam l'sleep s'estressa i fica dos pics la mateixa entrada....?
 		return Popen(comanda, stdout=PIPE, shell=True)
 
 	def treuIdFromSchedule(self, nom, sch_at):
@@ -327,6 +337,19 @@ class api_stashboard_panell:
 	#Retorna l'estat del servei: up o down.
 		append_url="/api/v1/incidents/"+str(id)
 		r = requests.delete(self.base_url+append_url,  headers=self.headers, verify=self.VER)
+
+
+        def actualitzaComponentIncident(self,id_in,id_co):
+
+		# Actualitza el component a que fa referència l'Incident.
+		# id_in: id de l'incident
+		# id_co: id del component
+
+
+                data = json.dumps({"id":id_in, "status":self.getIncidentStatus(id_in), "component_id":id_co})
+                append_url="/api/v1/incidents/"+str(id)
+                r = requests.put(self.base_url+append_url, data=data, headers=self.headers, verify=self.VER)
+                # Modificam el component
 
 	###################################
 	#

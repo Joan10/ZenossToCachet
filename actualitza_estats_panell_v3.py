@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# MAL MAL
+# V 4.0
 #
 # Autor: Joan Arbona
 # Script que actualitza la web de panell-estats, d'informació sobre l'estat de la infraestructura del CTI
@@ -12,7 +12,7 @@ from datetime import datetime, date, time, timedelta
 
 
 
-sys.path.append("/home/stashboard/panell_serveis_critics_dev/ZenossToCachet/API/")
+sys.path.append("/home/stashboard/v4.0/ZenossToCachet/API/")
 sys.path.append("/home/stashboard/secrets/")
 
 from secrets import prod_public_hq_token,prod_private_hq_token,deve_public_hq_token,deve_private_hq_token,web_password
@@ -30,12 +30,12 @@ xml_string = treu_events_grup_xml.treu_events_grup_xml('/zport/dmd/Groups/servei
 root = ET.fromstring(xml_string)
 
 # SERVIDORS PROVA
-st = api_stashboard_panell_v2.api_stashboard_panell("http://10.80.87.76",deve_public_hq_token,web_password);
-st2 = api_stashboard_panell_v2.api_stashboard_panell("http://10.80.87.76:9080",deve_private_hq_token,web_password);
+#st = api_stashboard_panell_v2.api_stashboard_panell("http://10.80.87.76",deve_public_hq_token,web_password);
+#st2 = api_stashboard_panell_v2.api_stashboard_panell("http://10.80.87.76:9080",deve_private_hq_token,web_password);
 
 # SERVIDORS PRODUCCIO
-#st = api_stashboard_panell_v2.api_stashboard_panell("http://panell-estats-cti.sint.uib.es:8080",deve_private_hq_token,web_password);# Exclusiu del CTI 
-#st2 = api_stashboard_panell_v2.api_stashboard_panell("http://panell-estats.sint.uib.es:8080",deve_public_hq_token,web_password);# Public
+st = api_stashboard_panell_v2.api_stashboard_panell("http://panell-estats-cti.sint.uib.es:8080",deve_private_hq_token,web_password);# Exclusiu del CTI 
+st2 = api_stashboard_panell_v2.api_stashboard_panell("http://panell-estats.sint.uib.es:8080",deve_public_hq_token,web_password);# Public
 
 zp=ZenossAPI.ZenossAPI()
 
@@ -108,7 +108,7 @@ def actualitza_component(st, id, nom, znom, perfok, aixeca):
 			st.posaComponentEnManteniment(id)
 	else:
 		if st.getEstatId(id) == "maint":
-			st.ArreglaIncident(nom,"El període de manteniment ha finalitzat amb èxit.",id)
+			st.ArreglaIncident(nom,"El període de manteniment ha finalitzat amb èxit.")
 		if aixeca == 1:
         		if perfok == 0:
                 		if st.getEstatId(id) != "perf":
@@ -133,30 +133,24 @@ for disp in root.findall('dispositiu'):
 	aixeca = 1 # Variable per saber si hem d'aixecar o no el servei en qüestoó
 	perfok = 1 # Variable per saber si el servei té un rendiment correcte
 	scheduled_at = ""
-	if disp.text == "udp.sint.uib.es":
-	#if disp.text != "udp.sint.uib.es":
+#	if disp.text == "udp.sint.uib.es":
+	if disp.text != "udp.sint.uib.es":
 		try:
 			# Parsejam el nom del dispositiu. Aquest anirà contingut dins el camp Comments del Zenoss de la forma següent:
 			# cachet=<nom>;
 			# Si no el troba posarà el nom del Device del Zenoss
-			comentari=zp.get_devicecomment(zp.get_UID(disp.text))
-			offset0=comentari.find("cachet=");
-			offset1=comentari.find(";");
-			if offset0 > -1 and offset1 > -1:
-				nom=comentari[offset0+7:offset1]
-			else:
-				raise Exception("Comentari al Zenoss mal format. El nom va contingut dins cachet=<nom>;")
-			
-                        offset2=comentari.find("public=");
-                        offset3=comentari.find(";",offset2+1)
-                        if offset2 > -1 and offset3 > -1:
-                                nompublic=comentari[offset2+7:offset3]
-                        else:
-                                nompublic="null"
-
+			nom = zp.get_devicePrivateName(zp.get_UID(disp.text))
+		except Exception as e:
+			nom = disp.text
+			# Parsejam el nom públic del dispositiu. 
+			# Aquest anirà contingut dins el camp Comments del Zenoss de la forma següent:
+			# public=<nom>;
+			# Si no el troba posarà el nom "null"
+		try:
+			nompublic = zp.get_devicePublicName(zp.get_UID(disp.text))
 		except:
-                        nompublic="null"
-			nom=disp.text
+			nompublic = "null"
+		#print nom+ " " + nompublic
 		# No actualitzam el grup, finalment ho feim manualment.
 		id=st.CreaServei(nom, "Dispositiu "+disp.text)
                 if nompublic != "null":
@@ -226,6 +220,6 @@ for disp in root.findall('dispositiu'):
 		actualitza_schedule(st,nom,l_sch_zenoss,st.treuLlistaSchedule(nom))
 		actualitza_component(st,id,nom,disp.text,perfok,aixeca)
 		if nompublic != "null":
-			#actualitza_schedule(st2,nompublic,l_sch_zenoss,st2.treuLlistaSchedule(nompublic))
+			actualitza_schedule(st2,nompublic,l_sch_zenoss,st2.treuLlistaSchedule(nompublic))
 			actualitza_component(st2,id2,nompublic,disp.text,perfok,aixeca)
 

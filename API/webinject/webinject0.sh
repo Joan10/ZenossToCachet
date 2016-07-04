@@ -48,6 +48,20 @@ echo "<testcases repeat=\"0\">
     logrequest=\"yes\"
     logresponse=\"yes\"
 />
+
+<case
+    id=\"4\"
+    description1=\"short description\"
+    description2=\"long description\"
+    method=\"get\"
+    url=\"$host/auth/logout\"
+    verifyresponsecode=\"302\"
+    logrequest=\"yes\"
+    logresponse=\"yes\"
+/>
+
+
+
 </testcases>" > update_schedules_cachethq.xml
 
 ./webinject.pl update_schedules_cachethq.xml
