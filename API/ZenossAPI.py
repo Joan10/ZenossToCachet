@@ -115,6 +115,32 @@ class ZenossAPI():
 	else:
 		return comment
 
+    def get_devicePrivateName(self, device_uid_path):
+        # Se li ha de passar forçosament un uid de Device Class amb el path sencer
+        # Parsejam el nom del dispositiu. Aquest anirà contingut dins el camp Comments del Zenoss de la forma següent:
+        # cachet=<nom>;
+       comentari=self.get_devicecomment(device_uid_path)
+       offset0=comentari.find("cachet=");
+       offset1=comentari.find(";");
+       if offset0 > -1 and offset1 > -1:
+               nom=comentari[offset0+7:offset1]
+       else:  
+               raise Exception("Comentari al Zenoss mal format. El nom va contingut dins cachet=<nom>;")
+       return nom
+
+
+    def get_devicePublicName(self, device_uid_path):
+        # Se li ha de passar forçosament un uid de Device Class amb el path sencer
+        # Parsejam el nom public del dispositiu. Aquest anirà contingut dins el camp Comments del Zenoss de la forma següent:
+        # public=<nom>;
+        comentari=self.get_devicecomment(device_uid_path)
+        offset2=comentari.find("public=");
+        offset3=comentari.find(";",offset2+1)
+        if offset2 > -1 and offset3 > -1:
+                nompublic=comentari[offset2+7:offset3]
+        else:
+                raise Exception("Comentari al Zenoss mal format. El nom públic va contingut dins public=<nom>;")
+	return nompublic
 
     def isMaintWindowActive(self,id):
 	if self._simple_get_request(id+"/maintenanceWindowDetail").find("<td class=\"tablevalues\">True</td>") > -1:

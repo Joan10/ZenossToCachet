@@ -7,7 +7,8 @@ import unittest
 import random
 import os
 import sys
-from datetime import datetime, timedelta, time
+import time 
+from datetime import datetime, timedelta
 from os import listdir
 from os.path import isfile, join
 from subprocess import Popen, PIPE
@@ -16,6 +17,14 @@ from subprocess import Popen, PIPE
 
 STR_MAINT="--Servei en manteniment--"
 MAIN_PATH="/home/stashboard/develop/"
+
+class CachetResponseError(Exception):
+	def __init__(self, status, message):
+		self.status = status
+		self.message = message
+
+	def __str__(self):
+		return "CachetHQ Error. Code " + repr(self.status) + ". Message: " + str(self.message)
 
 class api_stashboard_panell:
 
@@ -51,6 +60,9 @@ class api_stashboard_panell:
 	                append_url="/api/v1/components/groups"
 
                 r = requests.get(self.base_url+append_url, headers=self.headers, verify=self.VER)
+                if r.status_code != 200:
+                        raise CachetResponseError(r.status_code, json.loads(r.text)['errors'][0]['detail'])
+
 		try:
 			while r != None:
 			# Iteram per tots els components fins trobar el que conicideix el nom amb el passat per 
@@ -58,10 +70,15 @@ class api_stashboard_panell:
 				for comp in json.loads(r.text)['data']:
 					if nom_component == comp["name"]:
 						return comp["id"] # Retornam l'id
-				r = requests.get(json.loads(r.text)['meta']['pagination']['links']['next_page'], headers=self.headers, verify=self.VER)
+				r_json=json.loads(r.text)
+				r = requests.get(r_json['meta']['pagination']['links']['next_page'], headers=self.headers, verify=self.VER)
+		                if r.status_code != 200:
+                		        raise CachetResponseError(r.status_code, json.loads(r.text)['errors'][0]['detail'])
+
 				# Seguim iterant si no l'hem trobat
-		except:
+		except requests.exceptions.MissingSchema as e:
 			return "null" # Retornam null si no existeix.
+
 		return "null"		
 
 
@@ -99,6 +116,11 @@ class api_stashboard_panell:
                 data = json.dumps({"id":cid, "status":3})
                 append_url="/api/v1/components/"+str(cid)
                 r = requests.put(self.base_url+append_url, data=data, headers=self.headers, verify=self.VER)
+                if r.status_code == 200:
+                        return
+                else:
+                        raise CachetResponseError(r.status_code, json.loads(r.text)['errors'][0]['detail'])
+	
 
 	def llevaComponentDeManteniment(self,cid):
 
@@ -109,6 +131,11 @@ class api_stashboard_panell:
 
                 append_url="/api/v1/components/"+str(cid)
 		r1 = requests.get(self.base_url+append_url, headers=self.headers, verify=self.VER)
+                if r1.status_code == 200:
+                        return
+                else:   
+                        raise CachetResponseError(r1.status_code, json.loads(r1.text)['errors'][0]['detail'])
+
 
 		try:
 			text=json.loads(r1.text)['data']['description'][len(STR_MAINT)+1:]
@@ -120,48 +147,86 @@ class api_stashboard_panell:
                 data = json.dumps({"id":cid,"status": json.loads(r1.text)['data']['status'] , "description":text})
                 append_url="/api/v1/components/"+str(cid)
                 r2 = requests.put(self.base_url+append_url, data=data, headers=self.headers, verify=self.VER)
+                if r2.status_code == 200:
+                        return
+                else:   
+                        raise CachetResponseError(r2.status_code, json.loads(r2.text)['errors'][0]['detail'])
 
 	def TombaComponent(self, id):
 		# Posa component amb id passat a l'estat de DOWN
                 data = json.dumps({"id":id, "status":4})
                 append_url="/api/v1/components/"+str(id)
                 r = requests.put(self.base_url+append_url, data=data, headers=self.headers, verify=self.VER)
+                if r.status_code == 200:
+                        return
+                else:   
+                        raise CachetResponseError(r.status_code, json.loads(r.text)['errors'][0]['detail'])
+
 
 	def AixecaComponent(self, id):
 		# Posa component amb id passat a l'estat de UP
                 data = json.dumps({"id":id, "status":1})
                 append_url="/api/v1/components/"+str(id)
                 r = requests.put(self.base_url+append_url, data=data, headers=self.headers, verify=self.VER)
+                if r.status_code == 200:
+                        return 
+                else:  
+                        raise CachetResponseError(r.status_code, json.loads(r.text)['errors'][0]['detail'])
+
 
 	def ReportaComponent(self, id):
 		# Posa component amb id passat a l'estat de problemes de performance
                 data = json.dumps({"id":id, "status":2})
                 append_url="/api/v1/components/"+str(id)
                 r = requests.put(self.base_url+append_url, data=data, headers=self.headers, verify=self.VER)
+                if r.status_code == 200:
+                        return
+                else:  
+                        raise CachetResponseError(r.status_code, json.loads(r.text)['errors'][0]['detail'])
 
  
 	def getNomComponent(self,id):
                 append_url="/api/v1/components/"+str(id)
                 r = requests.get(self.base_url+append_url,  headers=self.headers, verify=self.VER)
-		return json.loads(r.text)['data']['name']
+		if r.status_code == 200:
+			return json.loads(r.text)['data']['name']
+		else:
+			raise CachetResponseError(r.status_code, json.loads(r.text)['errors'][0]['detail'])
 
+	def getNomComponentTest(self,id):
+                append_url="/api/v1/components/"+str(id)
+                r = requests.get(self.base_url+append_url,  headers=self.headers, verify=self.VER)
+		return r
 
 	def setNomComponent(self,id,nom):
         # Set nom dispositiu
                 data = json.dumps({"id":id, "name":nom, "status":self.getStatusFromId(id)})
                 append_url="/api/v1/components/"+str(id)
                 r = requests.put(self.base_url+append_url, data=data, headers=self.headers, verify=self.VER)
+                if r.status_code == 200:
+                        return
+                else:  
+                        raise CachetResponseError(r.status_code, json.loads(r.text)['errors'][0]['detail'])
 
 
 	def getDescComponent(self,id):
                 append_url="/api/v1/components/"+str(id)
                 r = requests.get(self.base_url+append_url,  headers=self.headers, verify=self.VER)
-		return json.loads(r.text)['data']['description']
+                if r.status_code == 200:
+                        return json.loads(r.text)['data']['description']
+                else:  
+                        raise CachetResponseError(r.status_code, json.loads(r.text)['errors'][0]['detail'])
+
 		
 	def setDescComponent(self,id,desc):
                 data = json.dumps({"id":id, "description":desc, "status":self.getStatusFromId(id)})
                 append_url="/api/v1/components/"+str(id)
                 r = requests.put(self.base_url+append_url, data=data, headers=self.headers, verify=self.VER)
+		if r.status_code == 200:
+                        return 
+                else:  
+                        raise CachetResponseError(r.status_code, json.loads(r.text)['errors'][0]['detail'])
+
 
 	###################################
 	#
@@ -178,6 +243,8 @@ class api_stashboard_panell:
 	        append_url="/api/v1/incidents"
 
                 r = requests.get(self.base_url+append_url, headers=self.headers, verify=self.VER)
+                if r.status_code != 200:
+	                raise CachetResponseError(r.status_code, json.loads(r.text)['errors'][0]['detail'])
 		try:
 			while r != None:
                         # Iteram per tots els incidents fins trobar el que conicideix el nom i cid amb el passat per 
@@ -187,9 +254,24 @@ class api_stashboard_panell:
 					if cid == inc["component_id"] and msg == inc["message"]:
 						return inc["id"]
 				r = requests.get(json.loads(r.text)['meta']['pagination']['links']['next_page'], headers=self.headers, verify=self.VER)
-		except:
+                                if r.status_code != 200:
+                                        raise CachetResponseError(r.status_code, json.loads(r.text)['errors'][0]['detail'])
+
+		except requests.exceptions.MissingSchema as e:
 			return "null"		
 		return "null"		
+
+
+        def getIncidentStatus(self, id):
+
+                # Retorna l'status de l'incident
+
+                append_url="/api/v1/incidents/"+str(id)
+		r = requests.get(self.base_url+append_url, headers=self.headers, verify=self.VER)
+                if r.status_code == 200:
+			return json.loads(r.text)['data']['status']
+                else:
+                        raise CachetResponseError(r.status_code, json.loads(r.text)['errors'][0]['detail'])
 
 
 
@@ -204,6 +286,10 @@ class api_stashboard_panell:
                 data = json.dumps({"name":nom,"message":missatge,"status":1,"component_id":id})
                 append_url="/api/v1/incidents"
                 r = requests.post(self.base_url+append_url, data=data, headers=self.headers, verify=self.VER)
+                if r.status_code == 200:
+			return 
+                else:
+                        raise CachetResponseError(r.status_code, json.loads(r.text)['errors'][0]['detail'])
 
 	def ArreglaIncident(self, nom, missatge, id="null"):
 		
@@ -218,9 +304,10 @@ class api_stashboard_panell:
 			data = json.dumps({"name":nom,"message":missatge,"status":4})
                 append_url="/api/v1/incidents"
                 r = requests.post(self.base_url+append_url, data=data, headers=self.headers, verify=self.VER)
-
-
-
+                if r.status_code == 200:
+                        return 
+                else:  
+                        raise CachetResponseError(r.status_code, json.loads(r.text)['errors'][0]['detail'])
 
 
 	def ReportaIncidentManteniment(self, nom, id, missatge):
@@ -232,6 +319,10 @@ class api_stashboard_panell:
                 data = json.dumps({"name":nom,"message":missatge,"status":0,"component_id":id})
                 append_url="/api/v1/incidents"
                 r = requests.post(self.base_url+append_url, data=data, headers=self.headers, verify=self.VER)
+                if r.status_code == 200:
+                        return 
+                else:  
+                        raise CachetResponseError(r.status_code, json.loads(r.text)['errors'][0]['detail'])
 
 	def ReportaSchedule(self, nom, missatge, date):
 	#
@@ -244,6 +335,7 @@ class api_stashboard_panell:
         	reload(sys)
 	        sys.setdefaultencoding("utf-8") # FUCK YOU python
 		comanda="/bin/bash "+MAIN_PATH+"API/webinject/webinject0.sh "+self.base_url+" \""+nom+"\" \""+missatge+"\" \""+date+"\"  \""+self.pas+"\""
+		time.sleep(1) # Si no posam l'sleep s'estressa i fica dos pics la mateixa entrada....?
 		return Popen(comanda, stdout=PIPE, shell=True)
 
 	def treuIdFromSchedule(self, nom, sch_at):
@@ -255,6 +347,8 @@ class api_stashboard_panell:
                 append_url="/api/v1/incidents"
 
                 r = requests.get(self.base_url+append_url, headers=self.headers, verify=self.VER)
+		if r.status_code != 200:
+                	raise CachetResponseError(r.status_code, json.loads(r.text)['errors'][0]['detail'])
                 try:
                         while r != None:
                         # Iteram per tots els incidents fins trobar el que conicideix el nom amb el passat per 
@@ -263,7 +357,9 @@ class api_stashboard_panell:
                                         if nom == inc["name"] and inc["human_status"] == "Scheduled" and inc["status"] == 0 and inc["scheduled_at"] == sch_at:
                                                 return inc["id"]
                                 r = requests.get(json.loads(r.text)['meta']['pagination']['links']['next_page'], headers=self.headers, verify=self.VER)
-                except:
+				if r.status_code != 200:
+                                        raise CachetResponseError(r.status_code, json.loads(r.text)['errors'][0]['detail'])
+                except requests.exceptions.MissingSchema as e:
                         return "null"
                 return "null"
 
@@ -284,6 +380,9 @@ class api_stashboard_panell:
 		llista_ls = []
 
                 r = requests.get(self.base_url+append_url, headers=self.headers, verify=self.VER)
+                if r.status_code != 200:
+                        raise CachetResponseError(r.status_code, json.loads(r.text)['errors'][0]['detail'])
+
                 try:   
                         while r != None:
                         # Iteram per tots els incidents fins trobar el que conicideix el nom amb el passat per 
@@ -316,8 +415,10 @@ class api_stashboard_panell:
 						
                                                 
                                 r = requests.get(json.loads(r.text)['meta']['pagination']['links']['next_page'], headers=self.headers, verify=self.VER)
+				if r.status_code != 200:
+                                        raise CachetResponseError(r.status_code, json.loads(r.text)['errors'][0]['detail'])
 
-		except Exception as e:
+		except requests.exceptions.MissingSchema as e:
 	         #       print("Error:", e)
 			pass
 			
@@ -327,6 +428,23 @@ class api_stashboard_panell:
 	#Retorna l'estat del servei: up o down.
 		append_url="/api/v1/incidents/"+str(id)
 		r = requests.delete(self.base_url+append_url,  headers=self.headers, verify=self.VER)
+                if r.status_code != 200:
+	                raise CachetResponseError(r.status_code, json.loads(r.text)['errors'][0]['detail'])
+
+
+        def actualitzaComponentIncident(self,id_in,id_co):
+
+		# Actualitza el component a que fa referència l'Incident.
+		# id_in: id de l'incident
+		# id_co: id del component
+
+
+                data = json.dumps({"id":id_in, "status":self.getIncidentStatus(id_in), "component_id":id_co})
+                append_url="/api/v1/incidents/"+str(id)
+                r = requests.put(self.base_url+append_url, data=data, headers=self.headers, verify=self.VER)
+		if r.status_code != 200:
+                	raise CachetResponseError(r.status_code, json.loads(r.text)['errors'][0]['detail'])
+                # Modificam el component
 
 	###################################
 	#
@@ -360,11 +478,16 @@ class api_stashboard_panell:
                 data = json.dumps({"name":nomservei,"message":missatge,"status":incident_status,"component_id":id})
                 append_url="/api/v1/incidents" 
                 r = requests.post(self.base_url+append_url, data=data, headers=self.headers, verify=self.VER)
+		if r.status_code != 200:
+                	raise CachetResponseError(r.status_code, json.loads(r.text)['errors'][0]['detail'])
 		# Cream l'incident
    		
 	        data = json.dumps({"id":id, "status":component_status})
         	append_url="/api/v1/components/"+str(id)
                 r = requests.put(self.base_url+append_url, data=data, headers=self.headers, verify=self.VER)
+                if r.status_code != 200:
+                        raise CachetResponseError(r.status_code, json.loads(r.text)['errors'][0]['detail'])
+
 		# Modificam el component
 
 
@@ -395,7 +518,11 @@ class api_stashboard_panell:
 			data = json.dumps({"name":nomservei,"description":descripcio,"status":1})
 	                append_url="/api/v1/components"
         	        r = requests.post(self.base_url+append_url, data=data,  headers=self.headers, verify=self.VER)
-			return json.loads(r.text)["data"]["id"]
+			if r.status_code == 200:
+	                        return json.loads(r.text)["data"]["id"]
+
+			else:
+                        	raise CachetResponseError(r.status_code, json.loads(r.text)['errors'][0]['detail'])
 
 
 
@@ -407,6 +534,9 @@ class api_stashboard_panell:
 			return "null"
 		append_url="/api/v1/components/"+str(id)
 		r = requests.get(self.base_url+append_url,  headers=self.headers, verify=self.VER)
+		if r.status_code != 200:
+			raise CachetResponseError(r.status_code, json.loads(r.text)['errors'][0]['detail'])
+
 		if json.loads(r.text)['data']['status'] == 1:
 			return "up"
 		elif  json.loads(r.text)['data']['status'] == 2:
@@ -419,6 +549,9 @@ class api_stashboard_panell:
 	#Retorna l'estat del servei: up o down.
 		append_url="/api/v1/components/"+str(id)
 		r = requests.get(self.base_url+append_url,  headers=self.headers, verify=self.VER)
+                if r.status_code != 200:
+                        raise CachetResponseError(r.status_code, json.loads(r.text)['errors'][0]['detail'])
+
 		if json.loads(r.text)['data']['status'] == 1:
 			return "up"
 		elif  json.loads(r.text)['data']['status'] == 2:
@@ -432,12 +565,17 @@ class api_stashboard_panell:
 	#Retorna l'estat del servei: up o down.
 		append_url="/api/v1/components/"+str(id)
 		r = requests.get(self.base_url+append_url,  headers=self.headers, verify=self.VER)
-		return json.loads(r.text)['data']['status']
+		if r.status_code == 200:
+			return json.loads(r.text)['data']['status']
+                else:
+			raise CachetResponseError(r.status_code, json.loads(r.text)['errors'][0]['detail'])
 
 	def eliminaServei(self, id):
 	#Retorna l'estat del servei: up o down.
 		append_url="/api/v1/components/"+str(id)
 		r = requests.delete(self.base_url+append_url,  headers=self.headers, verify=self.VER)
+                if r.status_code != 200:
+                        raise CachetResponseError(r.status_code, json.loads(r.text)['errors'][0]['detail'])
 
 
 
