@@ -36,10 +36,14 @@ class api_stashboard_panell:
 	user="joan.arbona@uib.es"
 	pas=""
 
+	schedule_list=[]
+
 	def __init__(self, url, token, pas):
 		self.base_url = url
 		self.headers = {'content-type': 'application/json', 'X-Cachet-Token' :token}
 		self.pas=pas
+		self.schedule_list=self.treuLlistaSchedule0()
+		
 
 	def preprocess(self, nomservei):
 		ret=nomservei	
@@ -344,7 +348,7 @@ class api_stashboard_panell:
 	# end_time: datetime
 
                 append_url="/api/v1/incidents"
-
+		print "TREU ID"
                 r = requests.get(self.base_url+append_url, headers=self.headers, verify=self.VER)
 		if r.status_code != 200:
                 	raise CachetResponseError(r.status_code, json.loads(r.text)['errors'][0]['detail'])
@@ -362,6 +366,19 @@ class api_stashboard_panell:
                         return "null"
                 return "null"
 
+#        def treuIdFromSchedule0(self, nom, sch_at):
+#        # Treu l'schedule de api/v1/incidents/id filtrant els incidents amb human_status Scheduled i status 0
+#	 # Ho consulta a la llista d'incidents per fer més via
+#        # nom: nom del dispositiu
+#        # sch_at: data de la forma YYYY-MM-DD HH:MM:SS
+#        # end_time: datetime
+
+#                for inc in self.schedule_list:
+#                        if inc["missatge"].find(nomcomp) > -1 and inc["start"].strftime("%Y-%m-%d %H:%M:%S") == sch_at :
+#				return inc["id"]
+#                return "null"
+
+
 
 	def treuEndTime(self, msg):
 		str1=msg[msg.find("fins el dia")+len("fins el dia "):]
@@ -369,8 +386,24 @@ class api_stashboard_panell:
                 hora=str1[str1.find(" a les ")+len(" a les "):-1]
 		return datetime.strptime(data+" "+hora, '%d-%m-%Y %H:%M')
 		
-	def treuLlistaSchedule(self, nomcomp = "null"):
-	# Treu la llista de Schedules. Si se li passa un nom, ho filtra per dispositiu.
+
+	def treuLlistaSchedule(self,nomcomp = "null"):
+        # Treu la llista de Schedules de la llista creada a l'inici. Això ho feim perquè l'script sigui més ràpid. 
+	# Si se li passa un nom, ho filtra per dispositiu.
+        # nomcomponent: nom del COMPONENT (no del dispositiu den Zenoss) el que apareix a la descripció.
+
+		if nomcomp == "null":
+			return self.schedule_list
+		llista_ls = []	
+		for inc in self.schedule_list:
+			if inc["missatge"].find(nomcomp) > -1:
+				llista_ls.append(inc)
+		return llista_ls	
+
+
+	def treuLlistaSchedule0(self, nomcomp = "null"):
+	# Treu la llista de Schedules. Més lent q l'anterior perquè va a cercar la llista al servidor. 
+	# Si se li passa un nom, ho filtra per dispositiu.
 	# nomcomponent: nom del COMPONENT (no del dispositiu den Zenoss) el que apareix a la descripció.
 	# 
                 append_url="/api/v1/incidents"
@@ -391,27 +424,26 @@ class api_stashboard_panell:
 					try:
 						dt_schat = datetime.strptime(inc["scheduled_at"],"%Y-%m-%d %H:%M:%S")
 						dt_endtime=self.treuEndTime(inc["message"])
+						if nomcomp == "null":
+		                                        if inc["human_status"] == "Scheduled" and inc["status"] == 0 and datetime.now() < dt_endtime:
+								ls["nom"] = inc["name"]
+								ls["missatge"] = inc["message"]
+								ls["start"] = dt_schat 
+								ls["end"] = dt_endtime
+								ls["id"] = inc["id"]
+								llista_ls.append(ls)
+								ls = {}
+						else:
+			                                if inc["message"].find(nomcomp) > -1 and inc["human_status"] == "Scheduled" and inc["status"] == 0 and datetime.now() < dt_endtime:
+								ls["nom"] = inc["name"]
+								ls["missatge"] = inc["message"]
+								ls["start"] = dt_schat 
+								ls["end"] = dt_endtime
+								ls["id"] = inc["id"]
+								llista_ls.append(ls)
+								ls = {}	
 					except:
 						pass
-					if nomcomp == "null":
-	                                        if inc["human_status"] == "Scheduled" and inc["status"] == 0 and datetime.now() < dt_endtime:
-							ls["nom"] = inc["name"]
-							ls["missatge"] = inc["message"]
-							ls["start"] = dt_schat 
-							ls["end"] = dt_endtime
-							ls["id"] = inc["id"]
-							llista_ls.append(ls)
-							ls = {}
-					else:
-		                                if inc["message"].find(nomcomp) > -1 and inc["human_status"] == "Scheduled" and inc["status"] == 0 and datetime.now() < dt_endtime:
-							ls["nom"] = inc["name"]
-							ls["missatge"] = inc["message"]
-							ls["start"] = dt_schat 
-							ls["end"] = dt_endtime
-							ls["id"] = inc["id"]
-							llista_ls.append(ls)
-							ls = {}
-						
                                                 
                                 r = requests.get(json.loads(r.text)['meta']['pagination']['links']['next_page'], headers=self.headers, verify=self.VER)
 				if r.status_code != 200:

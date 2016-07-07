@@ -228,7 +228,6 @@ for disp in root.findall('dispositiu'):
 		#la severitat d'aquests events! Si no cumpleix el mínim de severitat
 		# per tal de ser tombat l'aixecam.
 		##########################################################
-
 		##########################################################
 		# Sincronitzam els Maintenance Windows
                 #########################################################
