@@ -1,22 +1,38 @@
+
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# master
+# MAL MAL
 #
 # Autor: Joan Arbona
 # Script que actualitza la web de panell-estats, d'informació sobre l'estat de la infraestructura del CTI
 # Es tracta d'una web que fa servir el gestor de continguts CACHET amb la qual s'hi interactua amb JSON
 #
 
-import sys
+
+import sys, traceback
 from datetime import datetime, date, time, timedelta
 
+# ARGUMENT VALIDATION
+if len(sys.argv) != 2:
+	raise ValueError("Argument -d (debug) o -p (produccio) requerit")
+
+if sys.argv[1] == "-d":
+	PROD=False
+elif sys.argv[1] == "-p":
+	PROD=True
+else:
+        raise ValueError("Argument -d (debug) o -p (produccio) requerit")
+
+# PATH load
+if PROD == True:
+	sys.path.append("/home/stashboard/panell_serveis_critics_prod/ZenossToCachet/API/")
+else:
+	print "---EN MODE DEVELOP---"
+	sys.path.append("/home/stashboard/panell_serveis_critics_dev/ZenossToCachet/API/")
 
 
-sys.path.append("/home/stashboard/master/ZenossToCachet/API")
 sys.path.append("/home/stashboard/secrets/")
-
 from secrets import prod_public_hq_token,prod_private_hq_token,deve_public_hq_token,deve_private_hq_token,web_password
-
 import treu_events_grup_xml
 import api_stashboard_panell_v2 #Stashboard extens
 import xml.etree.ElementTree as ET
@@ -29,15 +45,19 @@ xml_string = treu_events_grup_xml.treu_events_grup_xml('/zport/dmd/Groups/servei
 
 root = ET.fromstring(xml_string)
 
-# SERVIDORS PROVA
-#st = api_stashboard_panell_v2.api_stashboard_panell("http://10.80.87.76","TGUTJqjJ6GXlTndt27hP");
-#st2 = api_stashboard_panell_v2.api_stashboard_panell("http://10.80.87.76:9080","2I8GMpbCfL1lyqqK2Rlo");
-
-# SERVIDORS PRODUCCIO
-st = api_stashboard_panell_v2.api_stashboard_panell("http://panell-estats-cti.sint.uib.es:8080",prod_private_hq_token,web_password);
-st2 = api_stashboard_panell_v2.api_stashboard_panell("http://panell-estats.sint.uib.es:8080",prod_public_hq_token,web_password);
+if PROD == True:
+# Servidors en producció
+	st = api_stashboard_panell_v2.api_stashboard_panell("http://panell-estats-cti.sint.uib.es:8080",deve_private_hq_token,web_password)
+	st2 = api_stashboard_panell_v2.api_stashboard_panell("http://panell-estats.sint.uib.es:8080",deve_public_hq_token,web_password)
+else:
+# Servidors de prova
+	print "PROD fals, empram servidors de prova"
+	st = api_stashboard_panell_v2.api_stashboard_panell("http://10.80.87.76",deve_public_hq_token,web_password);
+	st2 = api_stashboard_panell_v2.api_stashboard_panell("http://10.80.87.76:9080",deve_private_hq_token,web_password);
 
 zp=ZenossAPI.ZenossAPI()
+
+
 
 #DUMPING ET:
 #ET.dump(TREE)
@@ -48,22 +68,50 @@ zp=ZenossAPI.ZenossAPI()
 # De comentari afegeix el nom del dispositiu, la data d'inici de l'aturada i la data de final.
 # 
 
+STR_FORMAT="El servei %s estarà aturat per tasques de manteniment des del dia %s a les %s fins el dia %s a les %s."
 
-def actualitza_schedule(st, nomservei, mw):
+def actualitza_schedule(st, nomservei, l_sch_zenoss, l_sch_cachet):
 	reload(sys) # fuck you python
 	sys.setdefaultencoding("utf-8")
+	# Passam dues llistes d'schedules, la del cachet i la del zenoss, i les comparam.
+	# Si a la llista de zenoss n'hi ha algun que no existeix al cachet, cream l'schedule al cachet
+	# Si a la llista de cachet n'hi ha algun que no és al zenoss, borram la del cachet
 
-	for w in mw:
-		sta_time=datetime.fromtimestamp(float(w["start"]))
-		end_time=sta_time+timedelta(minutes=float(w["duration"]))
-		
-		if st.treuIdFromSchedule(w["nom"],end_time.strftime("%Y-%m-%d %H:%M:%S")) == "null":
-			if datetime.now() < end_time: # Només cream l'schedule si el maint window segueix vigent.
-				msg="El servei "+nomservei+" estarà aturat per tasques de manteniment des del dia "+sta_time.strftime("%d-%m-%Y")+" a les "+sta_time.strftime("%H:%M")+" fins el dia "+end_time.strftime("%d-%m-%Y")+" a les "+ end_time.strftime("%H:%M")+"."
+	for z in l_sch_zenoss:
+	# Recorrem la llista d'schedules del zenoss per afegir els que toqui al cachet
+		i=0
+                trobat=False
+		while trobat == False and i<len(l_sch_cachet):
+		# Recorrem la llista del cachet
+			c=l_sch_cachet[i]
+			if c["start"] == z["start"] and c["end"] == z["end"]:
+				trobat=True
+			i=i+1
+		if trobat == False:
+			msg=STR_FORMAT % (nomservei, z["start"].strftime("%d-%m-%Y"), z["start"].strftime("%H:%M"), z["end"].strftime("%d-%m-%Y"), z["end"].strftime("%H:%M")) 
+			# Formatejam el missatge i cream l'schedule
+                        st.ReportaSchedule(nomservei,msg,z["start"].strftime("%d/%m/%Y %H:%M"))
 
-				st.ReportaSchedule(w["nom"],msg,end_time.strftime("%d/%m/%Y %H:%M"))
+        for c in l_sch_cachet:
+	# Recorrem la llista d'schedules del cachet per afegir els que toqui al cachet
+                i=0
+                trobat=False
+                while trobat == False and i<len(l_sch_zenoss):
+		# Recorrem la llista del zenoss
+                        z=l_sch_zenoss[i]
+                        if c["start"] == z["start"] and c["end"] == z["end"]:
+                                trobat=True
+                        i=i+1
+                if trobat == False:
+			st.eliminaIncident(c["id"])
 
-def actualitza(st, id, nom, znom, perfok, aixeca):
+			
+
+
+
+
+
+def actualitza_component(st, id, nom, znom, perfok, aixeca):
 # 
 # Funció que actualitza l'estat dels components i incidents del Cachet en funció de tres flags: perfok, aixeca i maint
 # Té en compte els casos en què:
@@ -71,12 +119,14 @@ def actualitza(st, id, nom, znom, perfok, aixeca):
 # 2. El servei torna a funcionar correctament. aixeca = 1, perfok = 1
 # 3. El servei NO funciona. Aixeca = 0, perfok=X
 # SI el component està en manteniment, el posam en l'estat que toca i no hi feim canvis.
-#	
+#
 	maint = zp.is_inMaintenanceWindow(zp.get_UID(znom))
 	if maint == "True":
 		if st.getEstatId(id) != "maint":
 			st.posaComponentEnManteniment(id)
 	else:
+		if st.getEstatId(id) == "maint":
+			st.ArreglaIncident(nom,"El període de manteniment ha finalitzat amb èxit.")
 		if aixeca == 1:
         		if perfok == 0:
                 		if st.getEstatId(id) != "perf":
@@ -86,8 +136,10 @@ def actualitza(st, id, nom, znom, perfok, aixeca):
         	        else:
                 	        if st.getEstatId(id) != "up":
 					# Cas en que el servei torna a funcionar
-					st.AixecaComponent(id)
-					st.ArreglaIncident(nom,id,"El servei funciona correctament.")
+                                        st.AixecaComponent(id)
+                                        st.ArreglaIncident(nom,"El servei funciona correctament.",id)
+
+
         	else:
                		if st.getEstatId(id) != "down":
 			# Cas en que el servei deixa de funcionar
@@ -99,29 +151,22 @@ for disp in root.findall('dispositiu'):
 	aixeca = 1 # Variable per saber si hem d'aixecar o no el servei en qüestoó
 	perfok = 1 # Variable per saber si el servei té un rendiment correcte
 	scheduled_at = ""
-	if disp.text != "udp.sint.uib.es":
+	if (disp.text != "udp.sint.uib.ess" and PROD==False) or (disp.text != "udp.sint.uib.es" and PROD==True):
 		try:
 			# Parsejam el nom del dispositiu. Aquest anirà contingut dins el camp Comments del Zenoss de la forma següent:
 			# cachet=<nom>;
 			# Si no el troba posarà el nom del Device del Zenoss
-			comentari=zp.get_devicecomment(zp.get_UID(disp.text))
-			offset0=comentari.find("cachet=");
-			offset1=comentari.find(";");
-			if offset0 > -1 and offset1 > -1:
-				nom=comentari[offset0+7:offset1]
-			else:
-				raise Exception("Comentari al Zenoss mal format. El nom va contingut dins cachet=<nom>;")
-			
-                        offset2=comentari.find("public=");
-                        offset3=comentari.find(";",offset2+1)
-                        if offset2 > -1 and offset3 > -1:
-                                nompublic=comentari[offset2+7:offset3]
-                        else:
-                                nompublic="null"
-
+			nom = zp.get_devicePrivateName(zp.get_UID(disp.text))
+		except Exception as e:
+			nom = disp.text
+			# Parsejam el nom públic del dispositiu. 
+			# Aquest anirà contingut dins el camp Comments del Zenoss de la forma següent:
+			# public=<nom>;
+			# Si no el troba posarà el nom "null"
+		try:
+			nompublic = zp.get_devicePublicName(zp.get_UID(disp.text))
 		except:
-                        nompublic="null"
-			nom=disp.text
+			nompublic = "null"
 		# No actualitzam el grup, finalment ho feim manualment.
 		id=st.CreaServei(nom, "Dispositiu "+disp.text)
                 if nompublic != "null":
@@ -171,9 +216,11 @@ for disp in root.findall('dispositiu'):
 									
 							
 				except Exception as e:
-	#				print "Ooops. Error en un event de "+nom
-	#				print("Exception:", sys.exc_info()[0])
-	#				print("Error:", e)
+					if PROD == False:
+						print "Ooops. Error en un event de "+nom
+						print("Exception:", sys.exc_info()[0])
+						print("Error:", e)
+						traceback.print_exc(file=sys.stdout)
 					pass
 					
 
@@ -186,10 +233,22 @@ for disp in root.findall('dispositiu'):
 		##########################################################
 		# Sincronitzam els Maintenance Windows
                 #########################################################
-		mw=zp.get_deviceMaintWindows(zp.get_UID(disp.text))
+		l_sch_zenoss=zp.get_deviceMaintWindows(zp.get_UID(disp.text))
+		try:
+			actualitza_schedule(st,nom,l_sch_zenoss,st.treuLlistaSchedule(nom))
+			actualitza_component(st,id,nom,disp.text,perfok,aixeca)
+		except api_stashboard_panell_v2.CachetResponseError as e:
+			print "Error updating device "+disp.text+ " in private Cachet"
+			print e
+			traceback.print_exc(file=sys.stdout)
+	
+		try:	
+			if nompublic != "null":
+				actualitza_schedule(st2,nompublic,l_sch_zenoss,st2.treuLlistaSchedule(nompublic))
+				actualitza_component(st2,id2,nompublic,disp.text,perfok,aixeca)
+                except api_stashboard_panell_v2.CachetResponseError as e:
+                        print "Error updating device "+disp.text+ " in public Cachet"
+                        print e
+			traceback.print_exc(file=sys.stdout)
 
-		actualitza_schedule(st,nom,mw)
-		actualitza(st,id,nom,disp.text,perfok,aixeca)
-		if nompublic != "null":
-			actualitza_schedule(st2,nompublic,mw)
-			actualitza(st2,id2,nompublic,disp.text,perfok,aixeca)
+

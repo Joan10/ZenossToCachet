@@ -1,6 +1,8 @@
+
 # -*- coding: utf-8 -*-
 
 import json
+#import schedule
 
 import urllib
 import urllib2
@@ -104,7 +106,7 @@ class ZenossAPI():
 		len=i['path'].find("serveis/serveis_critics/")
 		if len > -1:
 			return i['path'][len+23:].replace("/","")
-	raise Exception("No esta dins cap grup")
+	raise Exception("No esta Dins cap grup")
 			
     def get_devicecomment(self, device_uid):
 	# Se li ha de passar forçosament un uid de Device Class
@@ -114,6 +116,32 @@ class ZenossAPI():
 	else:
 		return comment
 
+    def get_devicePrivateName(self, device_uid_path):
+        # Se li ha de passar forçosament un uid de Device Class amb el path sencer
+        # Parsejam el nom del dispositiu. Aquest anirà contingut dins el camp Comments del Zenoss de la forma següent:
+        # cachet=<nom>;
+       comentari=self.get_devicecomment(device_uid_path)
+       offset0=comentari.find("cachet=");
+       offset1=comentari.find(";");
+       if offset0 > -1 and offset1 > -1:
+               nom=comentari[offset0+7:offset1]
+       else:  
+               raise Exception("Comentari al Zenoss mal format. El nom va contingut dins cachet=<nom>;")
+       return nom
+
+
+    def get_devicePublicName(self, device_uid_path):
+        # Se li ha de passar forçosament un uid de Device Class amb el path sencer
+        # Parsejam el nom public del dispositiu. Aquest anirà contingut dins el camp Comments del Zenoss de la forma següent:
+        # public=<nom>;
+        comentari=self.get_devicecomment(device_uid_path)
+        offset2=comentari.find("public=");
+        offset3=comentari.find(";",offset2+1)
+        if offset2 > -1 and offset3 > -1:
+                nompublic=comentari[offset2+7:offset3]
+        else:
+                raise Exception("Comentari al Zenoss mal format. El nom públic va contingut dins public=<nom>;")
+	return nompublic
 
     def isMaintWindowActive(self,id):
 	if self._simple_get_request(id+"/maintenanceWindowDetail").find("<td class=\"tablevalues\">True</td>") > -1:
@@ -126,38 +154,46 @@ class ZenossAPI():
 	mw_list=mw_list_p[23:-2].split(">, <MaintenanceWindow at ")
 	l_mw=[]
 	mw={}
+	
 	if mw_list[0] == '':
 		return []
 	
 	for i in mw_list:
 		try:
 			if self.isMaintWindowActive(i) == "True":
-				name = self._simple_get_request(i+"/getProperty?id=name")
-				start = self._simple_get_request(i+"/getProperty?id=start")
-				duration = self._simple_get_request(i+"/getProperty?id=duration")
-				mw["nom"]=name
-				mw["start"]=start
-				mw["duration"]=duration
-				l_mw.append(mw)
-				mw={}
-		except:
+				start = datetime.fromtimestamp(float(self._simple_get_request(i+"/getProperty?id=start")))
+				duration = timedelta(minutes=float(self._simple_get_request(i+"/getProperty?id=duration")))
+				if start+duration > datetime.now():
+					name = self._simple_get_request(i+"/getProperty?id=name")
+					mw["nom"]=name
+					mw["start"]=start
+					mw["end"]=start+duration
+					mw["id"]=i
+					l_mw.append(mw)
+					mw={}
+				else:
+					print "obsoleta"
+			else:
+				print "not active"
+		except Exception as e:
+			print "no active"
 			pass
 		
 	return l_mw
 
     def is_inMaintenanceWindow(self, device_uid):
-#	mw = get_deviceMaintWindows(device_uid)
- #       for w in mw:
-  #              sta_time=datetime.fromtimestamp(float(w["start"]))
-   #             end_time=sta_time+timedelta(minutes=float(w["duration"]))
-    #            if datetime.now() < end_time and datetime.now() > sta_time: # Miram si estam en hora...
-#			return "True"
-#	return "False"	
-	status=self._simple_get_request(device_uid+"/getProductionStateString")
-	if status=="Maintenance":
-		return "True"
-	else:
-		return "False"
+	mw = self.get_deviceMaintWindows(device_uid)
+        for w in mw:
+                sta_time=w["start"]
+                end_time=w["end"]
+                if datetime.now() < end_time and datetime.now() > sta_time and self.isMaintWindowActive(w["id"]) == "True": # Miram si estam en hora...
+			return "True"
+	return "False"	
+#	status=self._simple_get_request(device_uid+"/getProductionStateString")
+#	if status=="Maintenance":
+#		return "True"
+#	else:
+#		return "False"
 
     def add_device(self, deviceName, deviceClass):
         data = dict(deviceName=deviceName, deviceClass=deviceClass)
