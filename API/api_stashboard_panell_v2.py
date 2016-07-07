@@ -447,17 +447,6 @@ class api_stashboard_panell:
                 # Modificam el component
 
 
-        def actualitzaComponentIncident(self,id_in,id_co):
-
-		# Actualitza el component a que fa referència l'Incident.
-		# id_in: id de l'incident
-		# id_co: id del component
-
-
-                data = json.dumps({"id":id_in, "status":self.getIncidentStatus(id_in), "component_id":id_co})
-                append_url="/api/v1/incidents/"+str(id)
-                r = requests.put(self.base_url+append_url, data=data, headers=self.headers, verify=self.VER)
-                # Modificam el component
 
 	###################################
 	#
