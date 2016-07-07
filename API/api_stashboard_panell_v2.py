@@ -268,15 +268,10 @@ class api_stashboard_panell:
 
                 append_url="/api/v1/incidents/"+str(id)
 		r = requests.get(self.base_url+append_url, headers=self.headers, verify=self.VER)
-<<<<<<< HEAD
-		return json.loads(r.text)['data']['status']
-=======
                 if r.status_code == 200:
 			return json.loads(r.text)['data']['status']
                 else:
                         raise CachetResponseError(r.status_code, json.loads(r.text)['errors'][0]['detail'])
-
->>>>>>> 12d0d1df85a5500dca92a0aff416705117ae5fca
 
 
 	def ReportaIncident(self, nom, id, missatge):

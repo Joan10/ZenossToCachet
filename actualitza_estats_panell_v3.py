@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# V 4.0
+# MAL MAL
 #
 # Autor: Joan Arbona
 # Script que actualitza la web de panell-estats, d'informació sobre l'estat de la infraestructura del CTI
@@ -22,17 +22,12 @@ elif sys.argv[1] == "-p":
 else:
         raise ValueError("Argument -d (debug) o -p (produccio) requerit")
 
-<<<<<<< HEAD
-sys.path.append("/home/stashboard/v4.0/ZenossToCachet/API/")
-sys.path.append("/home/stashboard/secrets/")
-=======
 # PATH load
 if PROD == True:
 	sys.path.append("/home/stashboard/panell_serveis_critics_prod/ZenossToCachet/API/")
 else:
 	print "---EN MODE DEVELOP---"
 	sys.path.append("/home/stashboard/panell_serveis_critics_dev/ZenossToCachet/API/")
->>>>>>> 12d0d1df85a5500dca92a0aff416705117ae5fca
 
 
 sys.path.append("/home/stashboard/secrets/")
@@ -49,15 +44,6 @@ xml_string = treu_events_grup_xml.treu_events_grup_xml('/zport/dmd/Groups/servei
 
 root = ET.fromstring(xml_string)
 
-<<<<<<< HEAD
-# SERVIDORS PROVA
-#st = api_stashboard_panell_v2.api_stashboard_panell("http://10.80.87.76",deve_public_hq_token,web_password);
-#st2 = api_stashboard_panell_v2.api_stashboard_panell("http://10.80.87.76:9080",deve_private_hq_token,web_password);
-
-# SERVIDORS PRODUCCIO
-st = api_stashboard_panell_v2.api_stashboard_panell("http://panell-estats-cti.sint.uib.es:8080",prod_private_hq_token,web_password);# Exclusiu del CTI 
-st2 = api_stashboard_panell_v2.api_stashboard_panell("http://panell-estats.sint.uib.es:8080",prod_public_hq_token,web_password);# Public
-=======
 if PROD == True:
 # Servidors en producció
 	st = api_stashboard_panell_v2.api_stashboard_panell("http://panell-estats-cti.sint.uib.es:8080",deve_private_hq_token,web_password)
@@ -67,7 +53,6 @@ else:
 	print "PROD fals, empram servidors de prova"
 	st = api_stashboard_panell_v2.api_stashboard_panell("http://10.80.87.76",deve_public_hq_token,web_password);
 	st2 = api_stashboard_panell_v2.api_stashboard_panell("http://10.80.87.76:9080",deve_private_hq_token,web_password);
->>>>>>> 12d0d1df85a5500dca92a0aff416705117ae5fca
 
 zp=ZenossAPI.ZenossAPI()
 
@@ -165,12 +150,7 @@ for disp in root.findall('dispositiu'):
 	aixeca = 1 # Variable per saber si hem d'aixecar o no el servei en qüestoó
 	perfok = 1 # Variable per saber si el servei té un rendiment correcte
 	scheduled_at = ""
-<<<<<<< HEAD
-#	if disp.text == "udp.sint.uib.es":
-	if disp.text != "udp.sint.uib.es":
-=======
 	if (disp.text != "udp.sint.uib.ess" and PROD==False) or (disp.text != "udp.sint.uib.es" and PROD==True):
->>>>>>> 12d0d1df85a5500dca92a0aff416705117ae5fca
 		try:
 			# Parsejam el nom del dispositiu. Aquest anirà contingut dins el camp Comments del Zenoss de la forma següent:
 			# cachet=<nom>;
@@ -186,10 +166,6 @@ for disp in root.findall('dispositiu'):
 			nompublic = zp.get_devicePublicName(zp.get_UID(disp.text))
 		except:
 			nompublic = "null"
-<<<<<<< HEAD
-		#print nom+ " " + nompublic
-=======
->>>>>>> 12d0d1df85a5500dca92a0aff416705117ae5fca
 		# No actualitzam el grup, finalment ho feim manualment.
 		id=st.CreaServei(nom, "Dispositiu "+disp.text)
                 if nompublic != "null":
@@ -274,12 +250,4 @@ for disp in root.findall('dispositiu'):
                         print e
 			traceback.print_exc(file=sys.stdout)
 
-<<<<<<< HEAD
-		actualitza_schedule(st,nom,l_sch_zenoss,st.treuLlistaSchedule(nom))
-		actualitza_component(st,id,nom,disp.text,perfok,aixeca)
-		if nompublic != "null":
-			actualitza_schedule(st2,nompublic,l_sch_zenoss,st2.treuLlistaSchedule(nompublic))
-			actualitza_component(st2,id2,nompublic,disp.text,perfok,aixeca)
-=======
->>>>>>> 12d0d1df85a5500dca92a0aff416705117ae5fca
 
