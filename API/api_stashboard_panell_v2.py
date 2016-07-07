@@ -286,7 +286,7 @@ class api_stashboard_panell:
                 data = json.dumps({"name":nom,"message":missatge,"status":1,"component_id":id})
                 append_url="/api/v1/incidents"
                 r = requests.post(self.base_url+append_url, data=data, headers=self.headers, verify=self.VER)
-                if r.status_code == 200:
+                if r.status_code == 200 or r.status_code == 400: #Error estrany
 			return 
                 else:
                         raise CachetResponseError(r.status_code, json.loads(r.text)['errors'][0]['detail'])
@@ -304,7 +304,7 @@ class api_stashboard_panell:
 			data = json.dumps({"name":nom,"message":missatge,"status":4})
                 append_url="/api/v1/incidents"
                 r = requests.post(self.base_url+append_url, data=data, headers=self.headers, verify=self.VER)
-                if r.status_code == 200:
+                if r.status_code == 200 or r.status_code == 400: #Error estrany
                         return 
                 else:  
                         raise CachetResponseError(r.status_code, json.loads(r.text)['errors'][0]['detail'])
@@ -428,7 +428,8 @@ class api_stashboard_panell:
 	#Retorna l'estat del servei: up o down.
 		append_url="/api/v1/incidents/"+str(id)
 		r = requests.delete(self.base_url+append_url,  headers=self.headers, verify=self.VER)
-                if r.status_code != 200:
+		print r
+                if r.status_code != 204:
 	                raise CachetResponseError(r.status_code, json.loads(r.text)['errors'][0]['detail'])
 
 
@@ -574,7 +575,7 @@ class api_stashboard_panell:
 	#Retorna l'estat del servei: up o down.
 		append_url="/api/v1/components/"+str(id)
 		r = requests.delete(self.base_url+append_url,  headers=self.headers, verify=self.VER)
-                if r.status_code != 200:
+                if r.status_code != 204:
                         raise CachetResponseError(r.status_code, json.loads(r.text)['errors'][0]['detail'])
 
 

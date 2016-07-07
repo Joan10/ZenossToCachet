@@ -7,16 +7,31 @@
 # Es tracta d'una web que fa servir el gestor de continguts CACHET amb la qual s'hi interactua amb JSON
 #
 
-import sys
+
+import sys, traceback
 from datetime import datetime, date, time, timedelta
 
+# ARGUMENT VALIDATION
+if len(sys.argv) != 2:
+	raise ValueError("Argument -d (debug) o -p (produccio) requerit")
+
+if sys.argv[1] == "-d":
+	PROD=False
+elif sys.argv[1] == "-p":
+	PROD=True
+else:
+        raise ValueError("Argument -d (debug) o -p (produccio) requerit")
+
+# PATH load
+if PROD == True:
+	sys.path.append("/home/stashboard/panell_serveis_critics_prod/ZenossToCachet/API/")
+else:
+	print "---EN MODE DEVELOP---"
+	sys.path.append("/home/stashboard/panell_serveis_critics_dev/ZenossToCachet/API/")
 
 
-sys.path.append("/home/stashboard/panell_serveis_critics_dev/ZenossToCachet/API/")
 sys.path.append("/home/stashboard/secrets/")
-
 from secrets import prod_public_hq_token,prod_private_hq_token,deve_public_hq_token,deve_private_hq_token,web_password
-
 import treu_events_grup_xml
 import api_stashboard_panell_v2 #Stashboard extens
 import xml.etree.ElementTree as ET
@@ -29,13 +44,15 @@ xml_string = treu_events_grup_xml.treu_events_grup_xml('/zport/dmd/Groups/servei
 
 root = ET.fromstring(xml_string)
 
-# SERVIDORS PROVA
-st = api_stashboard_panell_v2.api_stashboard_panell("http://10.80.87.76",deve_public_hq_token,web_password);
-st2 = api_stashboard_panell_v2.api_stashboard_panell("http://10.80.87.76:9080",deve_private_hq_token,web_password);
-
-# SERVIDORS PRODUCCIO
-#st = api_stashboard_panell_v2.api_stashboard_panell("http://panell-estats-cti.sint.uib.es:8080",deve_private_hq_token,web_password);# Exclusiu del CTI 
-#st2 = api_stashboard_panell_v2.api_stashboard_panell("http://panell-estats.sint.uib.es:8080",deve_public_hq_token,web_password);# Public
+if PROD == True:
+# Servidors en producció
+	st = api_stashboard_panell_v2.api_stashboard_panell("http://panell-estats-cti.sint.uib.es:8080",deve_private_hq_token,web_password)
+	st2 = api_stashboard_panell_v2.api_stashboard_panell("http://panell-estats.sint.uib.es:8080",deve_public_hq_token,web_password)
+else:
+# Servidors de prova
+	print "PROD fals, empram servidors de prova"
+	st = api_stashboard_panell_v2.api_stashboard_panell("http://10.80.87.76",deve_public_hq_token,web_password);
+	st2 = api_stashboard_panell_v2.api_stashboard_panell("http://10.80.87.76:9080",deve_private_hq_token,web_password);
 
 zp=ZenossAPI.ZenossAPI()
 
@@ -133,8 +150,7 @@ for disp in root.findall('dispositiu'):
 	aixeca = 1 # Variable per saber si hem d'aixecar o no el servei en qüestoó
 	perfok = 1 # Variable per saber si el servei té un rendiment correcte
 	scheduled_at = ""
-#	if disp.text == "udp.sint.uib.es":
-	if disp.text != "udp.sint.uib.ess":
+	if (disp.text != "udp.sint.uib.ess" and PROD==False) or (disp.text != "udp.sint.uib.es" and PROD==True):
 		try:
 			# Parsejam el nom del dispositiu. Aquest anirà contingut dins el camp Comments del Zenoss de la forma següent:
 			# cachet=<nom>;
@@ -150,7 +166,6 @@ for disp in root.findall('dispositiu'):
 			nompublic = zp.get_devicePublicName(zp.get_UID(disp.text))
 		except:
 			nompublic = "null"
-		print nom+ " " + nompublic
 		# No actualitzam el grup, finalment ho feim manualment.
 		id=st.CreaServei(nom, "Dispositiu "+disp.text)
                 if nompublic != "null":
@@ -200,9 +215,11 @@ for disp in root.findall('dispositiu'):
 									
 							
 				except Exception as e:
-					print "Ooops. Error en un event de "+nom
-					print("Exception:", sys.exc_info()[0])
-					print("Error:", e)
+					if PROD == False:
+						print "Ooops. Error en un event de "+nom
+						print("Exception:", sys.exc_info()[0])
+						print("Error:", e)
+						traceback.print_exc(file=sys.stdout)
 					pass
 					
 
@@ -216,10 +233,21 @@ for disp in root.findall('dispositiu'):
 		# Sincronitzam els Maintenance Windows
                 #########################################################
 		l_sch_zenoss=zp.get_deviceMaintWindows(zp.get_UID(disp.text))
+		try:
+			actualitza_schedule(st,nom,l_sch_zenoss,st.treuLlistaSchedule(nom))
+			actualitza_component(st,id,nom,disp.text,perfok,aixeca)
+		except api_stashboard_panell_v2.CachetResponseError as e:
+			print "Error updating device "+disp.text+ " in private Cachet"
+			print e
+			traceback.print_exc(file=sys.stdout)
+	
+		try:	
+			if nompublic != "null":
+				actualitza_schedule(st2,nompublic,l_sch_zenoss,st2.treuLlistaSchedule(nompublic))
+				actualitza_component(st2,id2,nompublic,disp.text,perfok,aixeca)
+                except api_stashboard_panell_v2.CachetResponseError as e:
+                        print "Error updating device "+disp.text+ " in public Cachet"
+                        print e
+			traceback.print_exc(file=sys.stdout)
 
-		actualitza_schedule(st,nom,l_sch_zenoss,st.treuLlistaSchedule(nom))
-		actualitza_component(st,id,nom,disp.text,perfok,aixeca)
-		if nompublic != "null":
-			#actualitza_schedule(st2,nompublic,l_sch_zenoss,st2.treuLlistaSchedule(nompublic))
-			actualitza_component(st2,id2,nompublic,disp.text,perfok,aixeca)
 
