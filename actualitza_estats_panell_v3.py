@@ -46,8 +46,8 @@ root = ET.fromstring(xml_string)
 
 if PROD == True:
 # Servidors en producció
-	st = api_stashboard_panell_v2.api_stashboard_panell("http://panell-estats-cti.sint.uib.es:8080",deve_private_hq_token,web_password)
-	st2 = api_stashboard_panell_v2.api_stashboard_panell("http://panell-estats.sint.uib.es:8080",deve_public_hq_token,web_password)
+	st = api_stashboard_panell_v2.api_stashboard_panell("http://panell-estats-cti.sint.uib.es:8080",prod_private_hq_token,web_password)
+	st2 = api_stashboard_panell_v2.api_stashboard_panell("http://panell-estats.sint.uib.es:8080",prod_public_hq_token,web_password)
 else:
 # Servidors de prova
 	print "PROD fals, empram servidors de prova"
