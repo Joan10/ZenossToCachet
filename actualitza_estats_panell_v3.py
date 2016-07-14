@@ -168,9 +168,21 @@ for disp in root.findall('dispositiu'):
 			nompublic = "null"
 		# No actualitzam el grup, finalment ho feim manualment.
 		id=st.CreaServei(nom, "Dispositiu "+disp.text)
+		
                 if nompublic != "null":
                         id2=st2.CreaServei(nompublic, "")
 
+		if PROD == False:
+	                reload(sys)
+        	        sys.setdefaultencoding("utf-8") # FUCK YOU python
+
+			print "----"
+			print "Zenoss: "+disp.text
+			print "Cachet Public: "+nompublic
+			print "Cachet Privat: "+nom
+			print "Id public: "+str(id2)
+			print "Id privat: "+str(id)
+			print "----"
 		if len(disp) > 0:
 			for event in disp.findall('event'):
 				message = event.find('message')

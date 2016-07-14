@@ -88,7 +88,15 @@ class ZenossAPI():
         if component: data['params']['component'] = component
         if eventClass: data['params']['eventClass'] = eventClass
 
-        return self._router_request('EventsRouter', 'query', [data])['result']
+	if device == None:
+		return self._router_request('EventsRouter', 'query', [data])['result']
+	else:
+	        events = self._router_request('EventsRouter', 'query', [data])['result']
+		for i in events['events']:
+			if i['device']['text'] != device:
+				events['events'].remove(i)
+		return events
+				
 
     def get_UID(self, device):
         return self._router_request('DeviceRouter', 'getDevices',
