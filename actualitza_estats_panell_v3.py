@@ -46,8 +46,8 @@ root = ET.fromstring(xml_string)
 
 if PROD == True:
 # Servidors en producció
-	st = api_stashboard_panell_v2.api_stashboard_panell("http://panell-estats-cti.sint.uib.es:8080",deve_private_hq_token,web_password)
-	st2 = api_stashboard_panell_v2.api_stashboard_panell("http://panell-estats.sint.uib.es:8080",deve_public_hq_token,web_password)
+	st = api_stashboard_panell_v2.api_stashboard_panell("http://panell-estats-cti.sint.uib.es:8080",prod_private_hq_token,web_password)
+	st2 = api_stashboard_panell_v2.api_stashboard_panell("http://panell-estats.sint.uib.es:8080",prod_public_hq_token,web_password)
 else:
 # Servidors de prova
 	print "PROD fals, empram servidors de prova"
@@ -135,6 +135,7 @@ def actualitza_component(st, id, nom, znom, perfok, aixeca):
         	        else:
                 	        if st.getEstatId(id) != "up":
 					# Cas en que el servei torna a funcionar
+					print "AIXECA "+nom
                                         st.AixecaComponent(id)
                                         st.ArreglaIncident(nom,"El servei funciona correctament.",id)
 
@@ -142,6 +143,7 @@ def actualitza_component(st, id, nom, znom, perfok, aixeca):
         	else:
                		if st.getEstatId(id) != "down":
 			# Cas en que el servei deixa de funcionar
+				print "TOMBA "+nom
 				st.TombaComponent(id)
 				st.ReportaIncident(nom,id,"Sembla que el servei està experimentant alguns problemes. Estam treballant perquè torni a estar operatiu el més aviat possible.")
 
