@@ -97,7 +97,6 @@ class ZenossAPI():
 				events['events'].remove(i)
 		return events
 				
-
     def get_UID(self, device):
         return self._router_request('DeviceRouter', 'getDevices',
                                     data=[{'uid': '/zport/dmd/Groups/serveis/serveis_critics',
@@ -178,12 +177,7 @@ class ZenossAPI():
 					mw["id"]=i
 					l_mw.append(mw)
 					mw={}
-				else:
-					print "obsoleta"
-			else:
-				print "not active"
 		except Exception as e:
-			print "no active"
 			pass
 		
 	return l_mw

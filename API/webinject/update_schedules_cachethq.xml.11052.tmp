@@ -1,0 +1,39 @@
+<testcases repeat="0">
+<case
+    id="1"
+    description1="short description"
+    description2="long description"
+    method="get"
+    url="http://10.80.87.76/auth/login"
+    parseresponse='_token" value="|">|escape'
+
+    verifyresponsecode="200"
+    logrequest="yes"
+    logresponse="yes"
+/>
+<case
+    id="2"
+    description1="short description"
+    description2="long description"
+    method="post"
+    url="http://10.80.87.76/auth/login"
+    postbody="login=joan.arbona@uib.es{AMPERSAND}password=cti1305{AMPERSAND}_token={PARSEDRESULT}"
+    verifyresponsecode="302"
+    logrequest="yes"
+    logresponse="yes"
+/>
+<case
+    id="3"
+    description1="short description"
+    description2="long description"
+    method="post"
+    addheader="Accept-Language: es,en;q=0.5"
+    addheader="Accept-Encoding: gzip, deflate"
+    addheader="Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+    url="http://10.80.87.76/dashboard/schedule/add"
+    postbody="_token={PARSEDRESULT}{AMPERSAND}incident[visible]=1{AMPERSAND}incident[name]=no2m{AMPERSAND}incident[message]=popósdsd{AMPERSAND}incident[scheduled_at]=12/12/2016 12:12"
+    verifyresponsecode="302"
+    logrequest="yes"
+    logresponse="yes"
+/>
+</testcases>

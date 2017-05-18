@@ -1,4 +1,4 @@
-GET http://10.80.87.76/auth/login
+GET http://10.80.87.76:9080/auth/login
 User-Agent: WebInject
 
 
@@ -6,11 +6,11 @@ User-Agent: WebInject
 HTTP/1.1 200 OK
 Cache-Control: no-cache
 Connection: close
-Date: Thu, 16 Jun 2016 12:23:35 GMT
+Date: Thu, 07 Jul 2016 11:09:32 GMT
 Server: Apache
 Content-Type: text/html; charset=UTF-8
-Client-Date: Thu, 16 Jun 2016 12:23:35 GMT
-Client-Peer: 10.80.87.76:80
+Client-Date: Thu, 07 Jul 2016 11:09:32 GMT
+Client-Peer: 10.80.87.76:9080
 Client-Response-Num: 1
 Client-Transfer-Encoding: chunked
 Client-Warning: Redirect loop detected (max_redirect = 0)
@@ -23,15 +23,15 @@ Link: </img/apple-touch-icon-114x114.png>; rel="apple-touch-icon"; sizes="114x11
 Link: </img/apple-touch-icon-120x120.png>; rel="apple-touch-icon"; sizes="120x120"
 Link: </img/apple-touch-icon-144x144.png>; rel="apple-touch-icon"; sizes="144x144"
 Link: </img/apple-touch-icon-152x152.png>; rel="apple-touch-icon"; sizes="152x152"
-Link: <https://fonts.googleapis.com/css?family=Open+Sans:300,400,700>; rel="stylesheet"; type="text/css"
-Link: </build/dist/css/all-5f5b94f75a.css>; rel="stylesheet"
-Set-Cookie: XSRF-TOKEN=eyJpdiI6Imo2ZGV6bit3QjlWam9IdDh5bStaZmc9PSIsInZhbHVlIjoiaGFNVWVqaFQzVUJhUlAybkFHbG1SeU05NjU0RW1XWU5rc1JIbmkrMFl2aEhBTFZLZmFoWGMxVmpwaWV0eXpUZ0NuZU9peitCN1Q5XC8zcnJ5Ymh0XC9Xdz09IiwibWFjIjoiZTU1ZDljYTkyZjEwNjQ2MjY3YTAzMWU1MGIwNGQ0Y2M4ZDI1NjliNTY3YWJjOWU3ZGI4MjRiMTMzYWEzYWJlMiJ9; expires=Thu, 16-Jun-2016 14:23:35 GMT; Max-Age=7200; path=/
-Set-Cookie: laravel_session=eyJpdiI6ImVGaEd4Q2RPbGhBcnpIT2J5WWNhMFE9PSIsInZhbHVlIjoiUjFiUmxPYURLZVhsVUp2U3BodXVzSThvRm8yazBOdUdnOU5xMThhV01JemdpR2Y4UFhvOW8xQVlcLzlGdHBOSlhsNlh0ODRUYnRqdllwXC95MmgxR2NQZz09IiwibWFjIjoiNzJmODUxOTVkZDViYzhlY2FjY2QwMmJkYTFiYTkyZGNiNzdjMWFlMGE3M2ZjMWNlMWZkYTg1MmM0NjA5OTFmZSJ9; expires=Thu, 16-Jun-2016 14:23:35 GMT; Max-Age=7200; path=/; httponly
+Link: <https://fonts.googleapis.com/css?family=Open+Sans:300,400,700&subset=latin>; rel="stylesheet"; type="text/css"
+Link: </build/dist/css/all-ecafd6395d.css>; rel="stylesheet"
+Set-Cookie: XSRF-TOKEN=eyJpdiI6IkhnQXNMbGhiYUNVM2dFNXl0VXg4U2c9PSIsInZhbHVlIjoiN3hzdnJrVnI2QUlVNWEyOW50T2tLSkxwTVB2ZDdEdXJhMFd2ZzhXVnJGZXQyeHlKRlZnam16RENXb0VxTjZqVmRhc3ROMWJnYVoxMVVGdGh5Y0dhUmc9PSIsIm1hYyI6IjEyZDY5MDk5N2VkMDEyM2Q0ODU3Mjk0YTY5MDUxZTVjY2FjMDQ4YTVkOGM1ZmIzNjI2ZWY4MzM5NzY2YjAxNTAifQ%3D%3D; expires=Thu, 07-Jul-2016 13:09:32 GMT; Max-Age=7200; path=/
+Set-Cookie: laravel_session=eyJpdiI6Ild2WUVQXC9zTjZmckFSWGFvUXhrb3JRPT0iLCJ2YWx1ZSI6IkU0aFdTVE4rOHg2M0F2VGFFNzJrR1lXKzFKUGF4TmRXbHhZTlE5ekNvS0hUekR5XC90OEhCVEhpdnErRE85d042VDgrSm80Q0FQZWdNRXU5MzYzRE9oUT09IiwibWFjIjoiYjljNDRlMmRkN2Y0NTUzYmIzNjE0YjNjMzMxNjUwNGZmMDk2NzE4ZjFkMjI0YTgxNWE3ZjU0MDAzMDMwN2QxNCJ9; expires=Thu, 07-Jul-2016 13:09:32 GMT; Max-Age=7200; path=/; httponly
 Title: Login
 X-Meta-Apple-Mobile-Web-App-Capable: yes
 X-Meta-Charset: utf-8
 X-Meta-Env: production
-X-Meta-Token: lVMeCK0FL9CGAAdDCcFJ8RxysbAyOk5xvoG62sLN
+X-Meta-Token: iL3HZkFTvYf13EidXJTMWQEtf4VUcxHlbSYtZzQK
 X-Meta-Viewport: width=device-width, initial-scale=1.0
 X-Powered-By: PHP/5.5.33
 X-UA-Compatible: IE=edge
@@ -45,7 +45,7 @@ X-UA-Compatible: IE=edge
     <meta name="apple-mobile-web-app-capable" content="yes">
 
     <meta name="env" content="production">
-    <meta name="token" content="lVMeCK0FL9CGAAdDCcFJ8RxysbAyOk5xvoG62sLN">
+    <meta name="token" content="iL3HZkFTvYf13EidXJTMWQEtf4VUcxHlbSYtZzQK">
 
     <link rel="icon" type="image/png" href="/img/favicon.ico">
     <link rel="shortcut icon" href="/img/favicon.png" type="image/x-icon">
@@ -60,15 +60,15 @@ X-UA-Compatible: IE=edge
 
     <title>Login</title>
 
-    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,700" rel="stylesheet" type="text/css">
-    <link rel="stylesheet" href="/build/dist/css/all-5f5b94f75a.css">
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,700&subset=latin" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" href="/build/dist/css/all-ecafd6395d.css">
     
     
     <script type="text/javascript">
         var Global = {};
         Global.locale = 'ca';
     </script>
-    <script src="/build/dist/js/all-9c19e78dd3.js"></script>
+    <script src="/build/dist/js/all-a62567215d.js"></script>
 </head>
 
 <body class="dashboard login">
@@ -92,33 +92,42 @@ X-UA-Compatible: IE=edge
 
                 <br>
 
-                <form method="POST" action="/auth/login" accept-charset="UTF-8" autocomplete="off" name="cdKCSESHjD">
-                    <input type="hidden" name="_token" value="lVMeCK0FL9CGAAdDCcFJ8RxysbAyOk5xvoG62sLN">
-
-                    
-                    <div class="form-group">
-                        <label class="sr-only">Username or Email</label>
-                        <input autocomplete="off" class="form-control login-input" placeholder="Username or Email" required="required" name="login" type="text" value="" autofocus>
-                    </div>
-                    <div class="form-group">
-                        <label class="sr-only">Password</label>
-                        <input autocomplete="off" class="form-control login-input" placeholder="Password" required="required" name="password" type="password" value="">
-                    </div>
-                    <div class="form-group">
-                        <div class="row">
-                            <div class="col-xs-2">
-                                <a class="btn btn-white btn-trans" href="http://10.80.87.76">
-                                    <span class="text-center">
-                                        <i class="ion-home"></i>
-                                    </span>
-                                </a>
-                            </div>
-                            <div class="col-xs-10">
-                                <button type="submit" class="btn btn-lg btn-block btn-white btn-trans">Login</button>
-                            </div>
+                <div class="panel">
+                    <div class="panel-body">
+                        <div class="text-center">
+                            <h3>Log In</h3>
                         </div>
+                        <br>
+                        <form method="POST" action="/auth/login" accept-charset="UTF-8" autocomplete="off" name="toeWxSEKnl">
+                            <input type="hidden" name="_token" value="iL3HZkFTvYf13EidXJTMWQEtf4VUcxHlbSYtZzQK">
+
+                            
+                            <div class="form-group">
+                                <label class="sr-only">Username or Email</label>
+                                <input autocomplete="off" class="form-control login-input" placeholder="Username or Email" required="required" name="login" type="text" value="" autofocus>
+                            </div>
+                            <div class="form-group">
+                                <label class="sr-only">Password</label>
+                                <input autocomplete="off" class="form-control login-input" placeholder="Password" required="required" name="password" type="password" value="">
+                            </div>
+                            <br>
+                            <div class="form-group">
+                                <div class="row">
+                                    <div class="col-xs-2">
+                                        <a class="btn btn-default btn-lg btn-trans" href="http://10.80.87.76:9080">
+                                            <span class="text-center">
+                                                <i class="ion ion-home"></i>
+                                            </span>
+                                        </a>
+                                    </div>
+                                    <div class="col-xs-10">
+                                        <button type="submit" class="btn btn-info btn-lg btn-block btn-trans">Login</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
                     </div>
-                </form>
+                </div>
             </div>
         </div>
     </div>
@@ -131,44 +140,46 @@ X-UA-Compatible: IE=edge
 ************************* LOG SEPARATOR *************************
 
 
-POST http://10.80.87.76/auth/login
+POST http://10.80.87.76:9080/auth/login
 User-Agent: WebInject
 Content-Type: application/x-www-form-urlencoded
-Cookie: laravel_session=eyJpdiI6ImVGaEd4Q2RPbGhBcnpIT2J5WWNhMFE9PSIsInZhbHVlIjoiUjFiUmxPYURLZVhsVUp2U3BodXVzSThvRm8yazBOdUdnOU5xMThhV01JemdpR2Y4UFhvOW8xQVlcLzlGdHBOSlhsNlh0ODRUYnRqdllwXC95MmgxR2NQZz09IiwibWFjIjoiNzJmODUxOTVkZDViYzhlY2FjY2QwMmJkYTFiYTkyZGNiNzdjMWFlMGE3M2ZjMWNlMWZkYTg1MmM0NjA5OTFmZSJ9; XSRF-TOKEN=eyJpdiI6Imo2ZGV6bit3QjlWam9IdDh5bStaZmc9PSIsInZhbHVlIjoiaGFNVWVqaFQzVUJhUlAybkFHbG1SeU05NjU0RW1XWU5rc1JIbmkrMFl2aEhBTFZLZmFoWGMxVmpwaWV0eXpUZ0NuZU9peitCN1Q5XC8zcnJ5Ymh0XC9Xdz09IiwibWFjIjoiZTU1ZDljYTkyZjEwNjQ2MjY3YTAzMWU1MGIwNGQ0Y2M4ZDI1NjliNTY3YWJjOWU3ZGI4MjRiMTMzYWEzYWJlMiJ9
+Cookie: laravel_session=eyJpdiI6Ild2WUVQXC9zTjZmckFSWGFvUXhrb3JRPT0iLCJ2YWx1ZSI6IkU0aFdTVE4rOHg2M0F2VGFFNzJrR1lXKzFKUGF4TmRXbHhZTlE5ekNvS0hUekR5XC90OEhCVEhpdnErRE85d042VDgrSm80Q0FQZWdNRXU5MzYzRE9oUT09IiwibWFjIjoiYjljNDRlMmRkN2Y0NTUzYmIzNjE0YjNjMzMxNjUwNGZmMDk2NzE4ZjFkMjI0YTgxNWE3ZjU0MDAzMDMwN2QxNCJ9; XSRF-TOKEN=eyJpdiI6IkhnQXNMbGhiYUNVM2dFNXl0VXg4U2c9PSIsInZhbHVlIjoiN3hzdnJrVnI2QUlVNWEyOW50T2tLSkxwTVB2ZDdEdXJhMFd2ZzhXVnJGZXQyeHlKRlZnam16RENXb0VxTjZqVmRhc3ROMWJnYVoxMVVGdGh5Y0dhUmc9PSIsIm1hYyI6IjEyZDY5MDk5N2VkMDEyM2Q0ODU3Mjk0YTY5MDUxZTVjY2FjMDQ4YTVkOGM1ZmIzNjI2ZWY4MzM5NzY2YjAxNTAifQ%3D%3D
 Cookie2: $Version="1"
 
-login=joan.arbona@uib.es&password=memCachet0&_token=lVMeCK0FL9CGAAdDCcFJ8RxysbAyOk5xvoG62sLN
+login=joan.arbona@uib.es&password=cti1305&_token=iL3HZkFTvYf13EidXJTMWQEtf4VUcxHlbSYtZzQK
 
 
 HTTP/1.1 302 Found
 Cache-Control: no-cache
 Connection: close
-Date: Thu, 16 Jun 2016 12:23:35 GMT
-Location: http://10.80.87.76/dashboard
+Date: Thu, 07 Jul 2016 11:09:32 GMT
+Location: http://10.80.87.76:9080/dashboard
 Server: Apache
-Content-Length: 356
+Content-Length: 376
 Content-Type: text/html; charset=UTF-8
-Client-Date: Thu, 16 Jun 2016 12:23:36 GMT
-Client-Peer: 10.80.87.76:80
+Client-Date: Thu, 07 Jul 2016 11:09:33 GMT
+Client-Peer: 10.80.87.76:9080
 Client-Response-Num: 1
 Client-Warning: Redirect loop detected (max_redirect = 0)
-Refresh: 1;url=http://10.80.87.76/dashboard
-Set-Cookie: XSRF-TOKEN=eyJpdiI6IjhDZmU4RjYzVml1bys2RzRGV3NSbXc9PSIsInZhbHVlIjoiSnQxOXllY3p2TlwveFwvYVcwUDIzTDd0OE10Zmg4dGdUTUF3NHV2UUIyU2RYZ1hTUzREeXRRNVwvQldiakYwOUZlTUxTOGRvbDhDbVd6TDFxNmJtczRrc0E9PSIsIm1hYyI6IjkwYTBhYmIzYTE0MmNiMDlkMGQ0MWJkODM0ZjEwOGVjMjQxZTQxOTMzOTkwMDg0MzBmZjhjNzhiZDk4ZWIwNzcifQ%3D%3D; expires=Thu, 16-Jun-2016 14:23:36 GMT; Max-Age=7200; path=/
-Set-Cookie: laravel_session=eyJpdiI6IkV0NG1neTRRNTE5bXZhS3U3UU5Tc0E9PSIsInZhbHVlIjoiKzJkOElFZndvVkpZQTBPZXlJaVwvVUVxWTRla0FnSEtuWGYwUnQyU2xqdTNMbGVpeDNJbFVFTncrbDBadG92NVlYV2JRTSsyaGVubFdzaXVmbUJzQUJRPT0iLCJtYWMiOiJkZDg2ZGE3ZjFhM2QzYTJhNTc5YjRmMmVlYWVlMzNiNzg5NDNjMDMzZjRmNDYwMWU3NTFhZjJlZjJiNDI2ODU2In0%3D; expires=Thu, 16-Jun-2016 14:23:36 GMT; Max-Age=7200; path=/; httponly
-Title: Redirecting to http://10.80.87.76/dashboard
+Refresh: 1;url=http://10.80.87.76:9080/dashboard
+Set-Cookie: XSRF-TOKEN=eyJpdiI6ImdZXC8za0NidTVxN2dES2d1YWpySWpBPT0iLCJ2YWx1ZSI6InRlOUlWM0VRdlprbGJWZTMyTDByTzBCZE8wMnJEVnMrMDlkVWxnbHZ0YjJraUN4YkRwRjNGd2EwM3RyTFF3T28waUJXbzhKSTRZaEY3WkVjcFdXN0RBPT0iLCJtYWMiOiI1ZTk3NGY4ODM4MjQxMWYxNjM1ZTA0YzM2YWQxZWE2ZDhkYTlkMDk1YmYxNzZlNGFlZjhhZjhjMzJkYTJlMjJiIn0%3D; expires=Thu, 07-Jul-2016 13:09:32 GMT; Max-Age=7200; path=/
+Set-Cookie: laravel_session=eyJpdiI6InhpYmJXeko1ZTNWZHFUODNQdVVcL0lRPT0iLCJ2YWx1ZSI6IjMwSVQ5QWpQbnZCb1NicjlcL01lRUllNnVUWFhXUXZGcmFMZ2VrTmRMdTRPQTJnMmhRK1pZXC8xUHIrNUp4ZjBwdzNVNytTUVphSkhKdVg0M1J4U3NrVVE9PSIsIm1hYyI6ImEwNmM3YjQ4YWM5N2NmOTBjMjEyNDI2ZmM4ZDAxMTBlN2Y4YmQwZjQ0NDMyMDA5ZTQ2ZDA4NjM0YTkzZGUzM2EifQ%3D%3D; expires=Thu, 07-Jul-2016 13:09:32 GMT; Max-Age=7200; path=/; httponly
+Title: Redirecting to http://10.80.87.76:9080/dashboard
 X-Meta-Charset: UTF-8
 X-Powered-By: PHP/5.5.33
+X-RateLimit-Limit: 10
+X-RateLimit-Remaining: 5
 
 <!DOCTYPE html>
 <html>
     <head>
         <meta charset="UTF-8" />
-        <meta http-equiv="refresh" content="1;url=http://10.80.87.76/dashboard" />
+        <meta http-equiv="refresh" content="1;url=http://10.80.87.76:9080/dashboard" />
 
-        <title>Redirecting to http://10.80.87.76/dashboard</title>
+        <title>Redirecting to http://10.80.87.76:9080/dashboard</title>
     </head>
     <body>
-        Redirecting to <a href="http://10.80.87.76/dashboard">http://10.80.87.76/dashboard</a>.
+        Redirecting to <a href="http://10.80.87.76:9080/dashboard">http://10.80.87.76:9080/dashboard</a>.
     </body>
 </html>
 
@@ -177,31 +188,135 @@ X-Powered-By: PHP/5.5.33
 ************************* LOG SEPARATOR *************************
 
 
-POST http://10.80.87.76/dashboard/schedule/add
+POST http://10.80.87.76:9080/dashboard/schedule/add
 User-Agent: WebInject
 Content-Type: application/x-www-form-urlencoded
-Cookie: laravel_session=eyJpdiI6IkV0NG1neTRRNTE5bXZhS3U3UU5Tc0E9PSIsInZhbHVlIjoiKzJkOElFZndvVkpZQTBPZXlJaVwvVUVxWTRla0FnSEtuWGYwUnQyU2xqdTNMbGVpeDNJbFVFTncrbDBadG92NVlYV2JRTSsyaGVubFdzaXVmbUJzQUJRPT0iLCJtYWMiOiJkZDg2ZGE3ZjFhM2QzYTJhNTc5YjRmMmVlYWVlMzNiNzg5NDNjMDMzZjRmNDYwMWU3NTFhZjJlZjJiNDI2ODU2In0%3D; XSRF-TOKEN=eyJpdiI6IjhDZmU4RjYzVml1bys2RzRGV3NSbXc9PSIsInZhbHVlIjoiSnQxOXllY3p2TlwveFwvYVcwUDIzTDd0OE10Zmg4dGdUTUF3NHV2UUIyU2RYZ1hTUzREeXRRNVwvQldiakYwOUZlTUxTOGRvbDhDbVd6TDFxNmJtczRrc0E9PSIsIm1hYyI6IjkwYTBhYmIzYTE0MmNiMDlkMGQ0MWJkODM0ZjEwOGVjMjQxZTQxOTMzOTkwMDg0MzBmZjhjNzhiZDk4ZWIwNzcifQ%3D%3D
+Cookie: laravel_session=eyJpdiI6InhpYmJXeko1ZTNWZHFUODNQdVVcL0lRPT0iLCJ2YWx1ZSI6IjMwSVQ5QWpQbnZCb1NicjlcL01lRUllNnVUWFhXUXZGcmFMZ2VrTmRMdTRPQTJnMmhRK1pZXC8xUHIrNUp4ZjBwdzNVNytTUVphSkhKdVg0M1J4U3NrVVE9PSIsIm1hYyI6ImEwNmM3YjQ4YWM5N2NmOTBjMjEyNDI2ZmM4ZDAxMTBlN2Y4YmQwZjQ0NDMyMDA5ZTQ2ZDA4NjM0YTkzZGUzM2EifQ%3D%3D; XSRF-TOKEN=eyJpdiI6ImdZXC8za0NidTVxN2dES2d1YWpySWpBPT0iLCJ2YWx1ZSI6InRlOUlWM0VRdlprbGJWZTMyTDByTzBCZE8wMnJEVnMrMDlkVWxnbHZ0YjJraUN4YkRwRjNGd2EwM3RyTFF3T28waUJXbzhKSTRZaEY3WkVjcFdXN0RBPT0iLCJtYWMiOiI1ZTk3NGY4ODM4MjQxMWYxNjM1ZTA0YzM2YWQxZWE2ZDhkYTlkMDk1YmYxNzZlNGFlZjhhZjhjMzJkYTJlMjJiIn0%3D
 Cookie2: $Version="1"
 
-_token=lVMeCK0FL9CGAAdDCcFJ8RxysbAyOk5xvoG62sLN&incident[visible]=1&incident[name]=Proves&incident[message]=aixo es una prova&incident[scheduled_at]=16/06/2016 15:00
+_token=iL3HZkFTvYf13EidXJTMWQEtf4VUcxHlbSYtZzQK&incident[visible]=1&incident[name]=Prova&incident[message]=El servei Prova estarà aturat per tasques de manteniment des del dia 07-07-2016 a les 13:25 fins el dia 07-07-2016 a les 14:25.&incident[scheduled_at]=07/07/2016 13:25
+
+
+HTTP/1.1 500 Internal Server Error
+Cache-Control: no-cache, private
+Connection: close
+Date: Thu, 07 Jul 2016 11:09:33 GMT
+Server: Apache
+Content-Length: 3161
+Content-Type: text/html; charset=UTF-8
+Client-Date: Thu, 07 Jul 2016 11:09:33 GMT
+Client-Peer: 10.80.87.76:9080
+Client-Response-Num: 1
+Client-Warning: Redirect loop detected (max_redirect = 0)
+Link: <http://10.80.87.76:9080/favicon.ico>; rel="shortcut icon"
+Set-Cookie: XSRF-TOKEN=eyJpdiI6Im1rNFBFRWExcUpmUUFVY0FoTmR2K1E9PSIsInZhbHVlIjoiT1RuczVtcmF1ckVNaGNqQW0zN01zcTFJbFltRmpSYSsyYUFFUEJxWUlEOHVIaXlnSDROZGtFdlhJUk5wK1pxTnM1d3k3bWNTSDl1SlVnWlZRQVo3VWc9PSIsIm1hYyI6IjE3MzhjYzU3ZTZlYzRjYTFhNTk0NTM3MTRkYjRjMTUzYTlmYzQ2NzE2YjRjOThkN2NjYjJiMGJmOWNkOTQzYmUifQ%3D%3D; expires=Thu, 07-Jul-2016 13:09:33 GMT; Max-Age=7200; path=/
+Set-Cookie: laravel_session=eyJpdiI6ImdYckNNR0JkNmcxQlo3ZndLdnV1QWc9PSIsInZhbHVlIjoiQWpPdTM2UFhcL3p6KzdoQ0JHclROTXVxUFBOSVNublpvTTZCeGwwaHlQSHJEYTJLUk5xZUFRN1lpUlwvXC82c3ViTUc4RlQ2c1Z6NzNcL250NEtjSUNQTEtnPT0iLCJtYWMiOiJiZWE1YWM5YWQyOGZjZTBlYWViNTNhZjYzYzEyYjY0MTk5ZDcwMzdiOTIyOThhMDI3YzQ3MjgzNDNhOWZlYWYzIn0%3D; expires=Thu, 07-Jul-2016 13:09:33 GMT; Max-Age=7200; path=/; httponly
+Title: Error 500
+X-Meta-Charset: utf-8
+X-Meta-Viewport: width=device-width, initial-scale=1.0
+X-Powered-By: PHP/5.5.33
+X-UA-Compatible: IE=edge,chrome=1
+
+<!doctype html>
+<html lang="en-GB">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>Error 500</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style type="text/css">
+        @import url(//fonts.googleapis.com/css?family=Droid+Sans);
+        html{font-size:100%;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;font-family:sans-serif;color:#222;}
+        body{font-family:'Droid Sans', sans-serif;font-size:11pt;color:#555;line-height:25px;margin:0;}
+        a{color:#00e;}
+        a:visited{color:#551a8b;}
+        a:hover{color:#72ADD4;}
+        a:focus{outline:thin dotted;}
+        a:hover,a:active{outline:0;}
+        hr{display:block;height:1px;border:0;border-top:1px solid #ccc;margin:1em 0;padding:0;}
+        .wrapper{padding: 3% 6%; margin:0 auto 5em;}
+        @media (min-width: 768px) {
+            html{font-size:100%;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;font-family:sans-serif;color:#222;}
+            body{font-size:10pt;}
+            a{color:#00e;}
+            .wrapper{max-width: 768px}
+            a,a:visited{color:#2972A3;}
+            .row-fluid [class*="span"]{float:left;width:100%;margin-left:2.0744680851064%;-webkit-box-sizing:border-box;-moz-box-sizing:border-box;box-sizing:border-box;}
+            .row-fluid [class*="span"]:first-child{margin-left:0;}
+            .row-fluid .span3{width:99.946808510638%;}
+            .row-fluid .span2{width:57.393617021277%;}
+            .row-fluid .span1{width:40.372340425532%;}
+            .pull-right{float:right;}
+            .ellipsis{overflow: hidden;white-space: nowrap;text-overflow: ellipsis;-o-text-overflow: ellipsis;}
+        }
+    </style>
+    <link rel="shortcut icon" href="http://10.80.87.76:9080/favicon.ico">
+</head>
+<body>
+<div class="wrapper">
+    <div role="main" class="main">
+        <div class="row-fluid">
+            <div class="span3">
+                <div class="span1 ellipsis">
+                    <h1>Error 500</h1>
+                </div>
+                <div class="span2 ellipsis">
+                    <h2 class="pull-right">Houston, We Have A Problem.</h2>
+                </div>
+            </div>
+            <h2>Internal Server Error</h2>
+            <hr>
+
+            <h3>What does this mean?</h3>
+
+            <p>
+                Something went wrong on our servers while we were processing your request.
+                An error has occurred and this resource cannot be displayed.
+                This occurrence has been logged, and a highly trained team of monkeys has been
+                dispatched to deal with your problem. We're really sorry about this, and will
+                work hard to get this resolved as soon as possible.
+            </p>
+            <p>
+                This error can be identified by <i>0e5eb530-6195-40a6-bfe8-43e2b607450c</i>.
+                You might want to take a note of this code.
+            </p>
+            <p>
+                Perhaps you would like to go to our <a href="http://10.80.87.76:9080/">home page</a>?
+            </p>
+        </div>
+    </div>
+</div>
+</body>
+</html>
+
+
+
+************************* LOG SEPARATOR *************************
+
+
+GET http://10.80.87.76:9080/auth/logout
+User-Agent: WebInject
+Cookie: laravel_session=eyJpdiI6ImdYckNNR0JkNmcxQlo3ZndLdnV1QWc9PSIsInZhbHVlIjoiQWpPdTM2UFhcL3p6KzdoQ0JHclROTXVxUFBOSVNublpvTTZCeGwwaHlQSHJEYTJLUk5xZUFRN1lpUlwvXC82c3ViTUc4RlQ2c1Z6NzNcL250NEtjSUNQTEtnPT0iLCJtYWMiOiJiZWE1YWM5YWQyOGZjZTBlYWViNTNhZjYzYzEyYjY0MTk5ZDcwMzdiOTIyOThhMDI3YzQ3MjgzNDNhOWZlYWYzIn0%3D; XSRF-TOKEN=eyJpdiI6Im1rNFBFRWExcUpmUUFVY0FoTmR2K1E9PSIsInZhbHVlIjoiT1RuczVtcmF1ckVNaGNqQW0zN01zcTFJbFltRmpSYSsyYUFFUEJxWUlEOHVIaXlnSDROZGtFdlhJUk5wK1pxTnM1d3k3bWNTSDl1SlVnWlZRQVo3VWc9PSIsIm1hYyI6IjE3MzhjYzU3ZTZlYzRjYTFhNTk0NTM3MTRkYjRjMTUzYTlmYzQ2NzE2YjRjOThkN2NjYjJiMGJmOWNkOTQzYmUifQ%3D%3D
+Cookie2: $Version="1"
+
 
 
 HTTP/1.1 302 Found
 Cache-Control: no-cache
 Connection: close
-Date: Thu, 16 Jun 2016 12:23:36 GMT
-Location: http://10.80.87.76/dashboard/schedule
+Date: Thu, 07 Jul 2016 11:09:33 GMT
+Location: http://10.80.87.76:9080
 Server: Apache
-Content-Length: 392
+Content-Length: 336
 Content-Type: text/html; charset=UTF-8
-Client-Date: Thu, 16 Jun 2016 12:23:36 GMT
-Client-Peer: 10.80.87.76:80
+Client-Date: Thu, 07 Jul 2016 11:09:33 GMT
+Client-Peer: 10.80.87.76:9080
 Client-Response-Num: 1
 Client-Warning: Redirect loop detected (max_redirect = 0)
-Refresh: 1;url=http://10.80.87.76/dashboard/schedule
-Set-Cookie: XSRF-TOKEN=eyJpdiI6IjZZSWY5dnJsWWVXTFNCcmk0dzB2b3c9PSIsInZhbHVlIjoicUFmb1RTWmhZN2lBaWJEanowS3JGbjBCWUJDUkJVXC9hbE5sWnVcL0RHUlRpMGJPMWl4MG9RV01yMmhqQTh2VGUwM3BpWHQ1YTFFZnZMMU1ZYXk1VVhYUT09IiwibWFjIjoiZGU0M2FjNjU1ZDJjNzE2YzNhZjU5MDRiNTEzMjcxZmI5N2JjODViYTY5ZGM3NDU5ZGE0MmNkNzdkYjkxMzIwNSJ9; expires=Thu, 16-Jun-2016 14:23:36 GMT; Max-Age=7200; path=/
-Set-Cookie: laravel_session=eyJpdiI6IjlwemRFRmcxUXJpYjhDeTIrWmo3aXc9PSIsInZhbHVlIjoiQ3FtWTAyZkZCcTlkcnFLXC93alVLOVVLWlNvSVl6aFdNUklMcEptZnJIa0RpMlVoM0UyTm9MMDRlaDI3SFFkOGdqbzQ0SDAxZzRNdU5nZnlCTWJ0SWFnPT0iLCJtYWMiOiJkZjdlMGM0NGY1MjliN2Y2ODVlNmZjOGM4MWJiNzA2MmE4YzM0YTc0YTI0MjZmNjc1Zjk2N2FlZGE4MWFjZGYzIn0%3D; expires=Thu, 16-Jun-2016 14:23:36 GMT; Max-Age=7200; path=/; httponly
-Title: Redirecting to http://10.80.87.76/dashboard/schedule
+Refresh: 1;url=http://10.80.87.76:9080
+Set-Cookie: XSRF-TOKEN=eyJpdiI6IktCSmViQlArelM2Q09sc1wvXC91c1lMUT09IiwidmFsdWUiOiJia1JpYzd0SWFudm1nSkRNbDdEZ0ZZcHN3dmhJV2o5c0Y4QVB0WnhnK1FMTGcxa2tMMXd5bURrSTEwWFhPbkV4bG9NMmpzbzcxelZDNitnOVFcL05mZGc9PSIsIm1hYyI6IjU4NGI3OTI0NDRiNDY4Mzk3NzU0Njk1NjI1NTU4ZmY0NWMxOGEzNjllNjE5NmE3ZTE3MGU3ZTJlY2IwZTRmZjYifQ%3D%3D; expires=Thu, 07-Jul-2016 13:09:33 GMT; Max-Age=7200; path=/
+Set-Cookie: laravel_session=eyJpdiI6IkRQZnZjSEZ3NGw0Qzg0SFZDN0dVU3c9PSIsInZhbHVlIjoiWko1SXJvNkRoN25kU1dOSEd5WHlldnExMnU4Z01UbDUxelI4eGtIWHBVbVJ5UXpLZHRxSDlHWUJHSzhYUlFLTkNhWFRwOUhzYTVibDFReEdlcFBsa3c9PSIsIm1hYyI6IjliYjhiNDUzM2RlMjgwZDNiZDAxZmFmODI4NzY3YjU3M2RiNzk4NmZlYTJmNDU0ZGNkZThjOTA0NzIyYjc0ZDMifQ%3D%3D; expires=Thu, 07-Jul-2016 13:09:33 GMT; Max-Age=7200; path=/; httponly
+Title: Redirecting to http://10.80.87.76:9080
 X-Meta-Charset: UTF-8
 X-Powered-By: PHP/5.5.33
 
@@ -209,12 +324,12 @@ X-Powered-By: PHP/5.5.33
 <html>
     <head>
         <meta charset="UTF-8" />
-        <meta http-equiv="refresh" content="1;url=http://10.80.87.76/dashboard/schedule" />
+        <meta http-equiv="refresh" content="1;url=http://10.80.87.76:9080" />
 
-        <title>Redirecting to http://10.80.87.76/dashboard/schedule</title>
+        <title>Redirecting to http://10.80.87.76:9080</title>
     </head>
     <body>
-        Redirecting to <a href="http://10.80.87.76/dashboard/schedule">http://10.80.87.76/dashboard/schedule</a>.
+        Redirecting to <a href="http://10.80.87.76:9080">http://10.80.87.76:9080</a>.
     </body>
 </html>
 

@@ -1,0 +1,35 @@
+<testcases repeat="0">
+<case
+    id="1"
+    description1="short description"
+    description2="long description"
+    method="get"
+    url="http://10.80.87.76/auth/login"
+    parseresponse='_token" value="|">|escape'
+
+    verifyresponsecode="200"
+    logrequest="no"
+    logresponse="no"
+/>
+<case
+    id="2"
+    description1="short description"
+    description2="long description"
+    method="post"
+    url="http://10.80.87.76/auth/login"
+    postbody="login=joan.arbona@uib.es&password=cti1305&_token={PARSEDRESULT}"
+    verifyresponsecode="302"
+    logrequest="no"
+    logresponse="no"
+/>
+<case
+    id="3"
+    description1="short description"
+    description2="long description"
+    method="get"
+    url="http://10.80.87.76/dashboard/schedule"
+    verifyresponsecode="200"
+    logrequest="no"
+    logresponse="yes"
+/>
+</testcases>
