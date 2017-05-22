@@ -128,10 +128,14 @@ def actualitza_component(st, id, nom, znom, perfok, aixeca):
 			st.ArreglaIncident(nom,"El període de manteniment ha finalitzat amb èxit.")
 		if aixeca == 1:
         		if perfok == 0:
-                		if st.getEstatId(id) != "perf":
-					# Cas en que hi ha problemes de rendiment
-					st.ReportaComponent(id)
-					st.ReportaIncident(nom,id,"El servei està experimentant problemes de rendiment.")
+                                if st.getEstatId(id) != "perf":
+                                        # Cas en que hi ha problemes de rendiment o de funcionament, pero el servei no esta aturat
+                                        st.ReportaComponent(id)
+                                        if zp.get_group(znom) == "Commutadors_Edifici":
+                                                st.ReportaIncident(nom,id,"La xarxa cablejada està experimentant alguns problemes en aquesta localització.")
+                                        else:
+                                                st.ReportaIncident(nom,id,"El servei està experimentant problemes de rendiment.")
+
         	        else:
                 	        if st.getEstatId(id) != "up":
 					# Cas en que el servei torna a funcionar
@@ -198,9 +202,9 @@ for disp in root.findall('dispositiu'):
 						#	print disp.text+" tomba"
 							aixeca = 0
 						##########################################################
-						#Si l'event no és crític, però té problemes de rendiment, ho reflexam a la pàgina.
+						#Si l'event no és crític, però té problemes de rendiment o l'event té de component "cachet", ho reflexam a la pàgina.
 						##########################################################
-						elif message.text.find("threshold of") > -1 and int(count.text) > 2:
+						elif (message.text.find("threshold of") > -1 or component.text.find("cachet") > -1) and int(count.text) > 2:
 							perfok = 0	
 
 						##########################################################
