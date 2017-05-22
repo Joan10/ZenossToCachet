@@ -177,10 +177,13 @@ class api_stashboard_panell:
                 else:  
                         raise CachetResponseError(r.status_code, json.loads(r.text)['errors'][0]['detail'])
 
-
-	def ReportaComponent(self, id):
-		# Posa component amb id passat a l'estat de problemes de performance
-                data = json.dumps({"id":id, "status":2})
+        def ReportaComponent(self, id, outage=False):
+               # Posa component amb id passat a l'estat de problemes
+                # Si outage = false, reportam problema de rendiment. Sino, problema de funcionament parcial
+                if outage == True:
+                    data = json.dumps({"id":id, "status":3})
+                else:
+                    data = json.dumps({"id":id, "status":2})
                 append_url="/api/v1/components/"+str(id)
                 r = requests.put(self.base_url+append_url, data=data, headers=self.headers, verify=self.VER)
                 if r.status_code == 200:

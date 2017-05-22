@@ -130,10 +130,11 @@ def actualitza_component(st, id, nom, znom, perfok, aixeca):
         		if perfok == 0:
                                 if st.getEstatId(id) != "perf":
                                         # Cas en que hi ha problemes de rendiment o de funcionament, pero el servei no esta aturat
-                                        st.ReportaComponent(id)
                                         if zp.get_group(znom) == "Commutadors_Edifici":
+                                        	st.ReportaComponent(id, outage=True)
                                                 st.ReportaIncident(nom,id,"La xarxa cablejada està experimentant alguns problemes en aquesta localització.")
                                         else:
+                                        	st.ReportaComponent(id, outage=False)
                                                 st.ReportaIncident(nom,id,"El servei està experimentant problemes de rendiment.")
 
         	        else:
