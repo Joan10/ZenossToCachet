@@ -59,7 +59,7 @@ zp=ZenossAPI.ZenossAPI()
 
 
 #DUMPING ET:
-#ET.dump(TREE)
+ET.dump(root)
 
 #
 # Funció que sincronitza els schedules del CachetHQ amb els Maintenance Window.
@@ -189,6 +189,7 @@ for disp in root.findall('dispositiu'):
 			print "Cachet Privat: "+nom
 			print "Id public: "+str(id2)
 			print "Id privat: "+str(id)
+			print "Id grup: "+str(zp.get_group(disp.text))
 			print "----"
 		if len(disp) > 0:
 			for event in disp.findall('event'):
@@ -217,7 +218,11 @@ for disp in root.findall('dispositiu'):
 						##########################################################
 						#Si l'event no és crític, però té problemes de rendiment o l'event té de component "cachet", ho reflexam a la pàgina.
 						##########################################################
+<<<<<<< HEAD
 						elif (message.text.find("threshold of") > -1 or component.text.find("cachet") > -1) and int(count.text) > 2:
+=======
+                                                elif (message.text.find("threshold of") > -1 or component.text.find("cachet") > -1) and int(count.text) > 2:
+>>>>>>> 18fd6026bb489b8960603171a524d1d3683dadcc
 							perfok = 0	
 
 						##########################################################

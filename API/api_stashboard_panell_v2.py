@@ -188,8 +188,9 @@ class api_stashboard_panell:
                 r = requests.put(self.base_url+append_url, data=data, headers=self.headers, verify=self.VER)
                 if r.status_code == 200:
                         return
-                else:  
+                else:
                         raise CachetResponseError(r.status_code, json.loads(r.text)['errors'][0]['detail'])
+
 
  
 	def getNomComponent(self,id):
