@@ -62,34 +62,33 @@ zp=ZenossAPI.ZenossAPI()
 #ET.dump(root)
 
 
-def actualitza_component(st, id, nom, znom, perfok, aixeca):
+def actualitza_component(st, id, nom, znom, estat):
 # 
 # Funció que actualitza l'estat dels components i incidents del Cachet en funció de tres flags: perfok, aixeca i maint
 # Té en compte els casos en què:
-# 1. Hi ha problemes de rendiment. aixeca = 1, perfok = 0
-# 2. El servei torna a funcionar correctament. aixeca = 1, perfok = 1
-# 3. El servei NO funciona. Aixeca = 0, perfok=X
-	if aixeca == 1:
-		if perfok == 0:
-                        if st.getEstatId(id) != "perf":
-                                # Cas en que hi ha problemes de rendiment o de funcionament, pero el servei no esta aturat
-                                if zp.get_group(znom) == "Commutadors_Edifici":
-                                	st.ReportaComponent(id, outage=True)
-                                        st.ReportaIncident(nom,id,"La xarxa cablejada està experimentant alguns problemes en aquesta localització.")
-                                else:
-                                	st.ReportaComponent(id, outage=False)
-                                        st.ReportaIncident(nom,id,"El servei està experimentant problemes de rendiment.")
+# 1. Hi ha problemes de rendiment. estat="problemes_rendiment" ; aixeca = 1, perfok = 0
+# 2. Interrupció parcial. estat="interrupcio_parcial"
+# 3. El servei torna a funcionar correctament. estat="aixeca" aixeca = 1, perfok = 1
+# 4. El servei NO funciona. estat="no_funciona" Aixeca = 0, perfok=X
+	if estat == "problemes_rendiment":
+		if st.getEstatId(id) != "perf":
+			ReportaComponent(id, outage=False)
+                        st.ReportaIncident(nom,id,"El servei està experimentant problemes de rendiment.")
 
-	        else:
-        	        if st.getEstatId(id) != "up":
-				# Cas en que el servei torna a funcionar
-				if PROD == False: 
-					print "AIXECA "+nom
-                                st.AixecaComponent(id)
-                                st.ArreglaIncident(nom,"El servei funciona correctament.",id)
+	if estat == "interrupcio_parcial":
+		if st.getEstatId(id) != "inte":
+			st.ReportaComponent(id, outage=True)
+			st.ReportaIncident(nom,id,"El servei està experimentant algunes interrupcions ")
+			
+	if estat == "aixeca":
+		if st.getEstatId(id) != "up":
+		# Cas en que el servei torna a funcionar
+			if PROD == False: 
+				print "AIXECA "+nom
+			st.AixecaComponent(id)
+			st.ArreglaIncident(nom,"El servei funciona correctament.",id)
 
-
-	else:
+	if estat == "no_funciona" :
        		if st.getEstatId(id) != "down":
 		# Cas en que el servei deixa de funcionar
 			if PROD == False: 
@@ -99,8 +98,7 @@ def actualitza_component(st, id, nom, znom, perfok, aixeca):
 
 for disp in root.findall('dispositiu'):
 
-	aixeca = 1 # Variable per saber si hem d'aixecar o no el servei en qüestoó
-	perfok = 1 # Variable per saber si el servei té un rendiment correcte
+	estat="aixeca"
 	scheduled_at = ""
 	if (disp.text != "udp.sint.uib.ess" and PROD==False) or (disp.text != "udp.sint.uib.es" and PROD==True):
 		try:
@@ -158,13 +156,14 @@ for disp in root.findall('dispositiu'):
 						#Si l'event és de serveis crítics i la severitat de l'event és suficient tombam el servei
 						#Sino, ignoram l'event.
 						##########################################################
-						#	print disp.text+" tomba"
-							aixeca = 0
+							estat="no_funciona"
 						##########################################################
 						#Si l'event no és crític, però té problemes de rendiment o l'event té de component "cachet", ho reflexam a la pàgina.
 						##########################################################
-						elif (message.text.find("threshold of") > -1 or message.text.find("unreachable") > -1) and int(count.text) > 2:
-							perfok = 0	
+						elif message.text.find("unreachable") > -1 and int(count.text) > 2 and estat != "no_funciona":
+							estat="interrupcio_parcial"
+						elif message.text.find("threshold of") > -1 and int(count.text) > 2 and estat != "interrupcio_parcial" and estat != "no_funciona":
+							estat="problemes_rendiment"
 
 							
 				except Exception as e:
@@ -185,7 +184,7 @@ for disp in root.findall('dispositiu'):
 		# Sincronitzam els Maintenance Windows
                 #########################################################
 		try:
-			actualitza_component(st,id,nom,disp.text,perfok,aixeca)
+			actualitza_component(st,id,nom,disp.text,estat)
 		except api_stashboard_panell_v2.CachetResponseError as e:
 			print "Error updating device "+disp.text+ " in private Cachet"
 			print e
@@ -193,7 +192,7 @@ for disp in root.findall('dispositiu'):
 	
 		try:	
 			if nompublic != "null":
-				actualitza_component(st2,id2,nompublic,disp.text,perfok,aixeca)
+				actualitza_component(st2,id2,nompublic,disp.text,estat)
                 except api_stashboard_panell_v2.CachetResponseError as e:
                         print "Error updating device "+disp.text+ " in public Cachet"
                         print e

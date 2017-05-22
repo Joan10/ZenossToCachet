@@ -595,7 +595,7 @@ class api_stashboard_panell:
 		elif  json.loads(r.text)['data']['status'] == 2:
 			return "perf"
 		elif json.loads(r.text)['data']['status'] == 3:
-			return "maint"
+			return "inte"
 		else:
 			return "down"
 
