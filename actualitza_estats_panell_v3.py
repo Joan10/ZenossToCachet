@@ -205,7 +205,7 @@ for disp in root.findall('dispositiu'):
 						##########################################################
 						#Si l'event no és crític, però té problemes de rendiment o l'event té de component "cachet", ho reflexam a la pàgina.
 						##########################################################
-						elif (message.text.find("threshold of") > -1 or component.text.find("cachet") > -1) and int(count.text) > 2:
+						elif (message.text.find("threshold of") > -1 or message.text.find("unreachable") > -1) and int(count.text) > 2:
 							perfok = 0	
 
 						##########################################################
