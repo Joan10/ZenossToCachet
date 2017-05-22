@@ -59,55 +59,7 @@ zp=ZenossAPI.ZenossAPI()
 
 
 #DUMPING ET:
-ET.dump(root)
-
-#
-# Funció que sincronitza els schedules del CachetHQ amb els Maintenance Window.
-# Primer els mira tots, i, si no existeixen ja, i no han caducat, els afegeix. 
-# De comentari afegeix el nom del dispositiu, la data d'inici de l'aturada i la data de final.
-# 
-
-STR_FORMAT="El servei %s estarà aturat per tasques de manteniment des del dia %s a les %s fins el dia %s a les %s."
-
-def actualitza_schedule(st, nomservei, l_sch_zenoss, l_sch_cachet):
-	reload(sys) # fuck you python
-	sys.setdefaultencoding("utf-8")
-	# Passam dues llistes d'schedules, la del cachet i la del zenoss, i les comparam.
-	# Si a la llista de zenoss n'hi ha algun que no existeix al cachet, cream l'schedule al cachet
-	# Si a la llista de cachet n'hi ha algun que no és al zenoss, borram la del cachet
-
-	for z in l_sch_zenoss:
-	# Recorrem la llista d'schedules del zenoss per afegir els que toqui al cachet
-		i=0
-                trobat=False
-		while trobat == False and i<len(l_sch_cachet):
-		# Recorrem la llista del cachet
-			c=l_sch_cachet[i]
-			if c["start"] == z["start"] and c["end"] == z["end"]:
-				trobat=True
-			i=i+1
-		if trobat == False:
-			msg=STR_FORMAT % (nomservei, z["start"].strftime("%d-%m-%Y"), z["start"].strftime("%H:%M"), z["end"].strftime("%d-%m-%Y"), z["end"].strftime("%H:%M")) 
-			# Formatejam el missatge i cream l'schedule
-                        st.ReportaSchedule(nomservei,msg,z["start"].strftime("%d/%m/%Y %H:%M"))
-
-        for c in l_sch_cachet:
-	# Recorrem la llista d'schedules del cachet per afegir els que toqui al cachet
-                i=0
-                trobat=False
-                while trobat == False and i<len(l_sch_zenoss):
-		# Recorrem la llista del zenoss
-                        z=l_sch_zenoss[i]
-                        if c["start"] == z["start"] and c["end"] == z["end"]:
-                                trobat=True
-                        i=i+1
-                if trobat == False:
-			st.eliminaIncident(c["id"])
-
-			
-
-
-
+#ET.dump(root)
 
 
 def actualitza_component(st, id, nom, znom, perfok, aixeca):
@@ -117,40 +69,33 @@ def actualitza_component(st, id, nom, znom, perfok, aixeca):
 # 1. Hi ha problemes de rendiment. aixeca = 1, perfok = 0
 # 2. El servei torna a funcionar correctament. aixeca = 1, perfok = 1
 # 3. El servei NO funciona. Aixeca = 0, perfok=X
-# SI el component està en manteniment, el posam en l'estat que toca i no hi feim canvis.
-#
-	maint = zp.is_inMaintenanceWindow(zp.get_UID(znom))
-	if maint == "True":
-		if st.getEstatId(id) != "maint":
-			st.posaComponentEnManteniment(id)
-	else:
-		if st.getEstatId(id) == "maint":
-			st.ArreglaIncident(nom,"El període de manteniment ha finalitzat amb èxit.")
-		if aixeca == 1:
-        		if perfok == 0:
-                                if st.getEstatId(id) != "perf":
-                                        # Cas en que hi ha problemes de rendiment o de funcionament, pero el servei no esta aturat
-                                        if zp.get_group(znom) == "Commutadors_Edifici":
-                                        	st.ReportaComponent(id, outage=False)
-                                                st.ReportaIncident(nom,id,"La xarxa cablejada està experimentant alguns problemes en aquesta localització.")
-                                        else:
-                                        	st.ReportaComponent(id, outage=False)
-                                                st.ReportaIncident(nom,id,"El servei està experimentant problemes de rendiment.")
+	if aixeca == 1:
+		if perfok == 0:
+                        if st.getEstatId(id) != "perf":
+                                # Cas en que hi ha problemes de rendiment o de funcionament, pero el servei no esta aturat
+                                if zp.get_group(znom) == "Commutadors_Edifici":
+                                	st.ReportaComponent(id, outage=True)
+                                        st.ReportaIncident(nom,id,"La xarxa cablejada està experimentant alguns problemes en aquesta localització.")
+                                else:
+                                	st.ReportaComponent(id, outage=False)
+                                        st.ReportaIncident(nom,id,"El servei està experimentant problemes de rendiment.")
 
-        	        else:
-                	        if st.getEstatId(id) != "up":
-					# Cas en que el servei torna a funcionar
+	        else:
+        	        if st.getEstatId(id) != "up":
+				# Cas en que el servei torna a funcionar
+				if PROD == false: 
 					print "AIXECA "+nom
-                                        st.AixecaComponent(id)
-                                        st.ArreglaIncident(nom,"El servei funciona correctament.",id)
+                                st.AixecaComponent(id)
+                                st.ArreglaIncident(nom,"El servei funciona correctament.",id)
 
 
-        	else:
-               		if st.getEstatId(id) != "down":
-			# Cas en que el servei deixa de funcionar
+	else:
+       		if st.getEstatId(id) != "down":
+		# Cas en que el servei deixa de funcionar
+			if PROD == false: 
 				print "TOMBA "+nom
-				st.TombaComponent(id)
-				st.ReportaIncident(nom,id,"Sembla que el servei està experimentant alguns problemes. Estam treballant perquè torni a estar operatiu el més aviat possible.")
+			st.TombaComponent(id)
+			st.ReportaIncident(nom,id,"Sembla que el servei està experimentant alguns problemes. Estam treballant perquè torni a estar operatiu el més aviat possible.")
 
 for disp in root.findall('dispositiu'):
 
@@ -218,25 +163,9 @@ for disp in root.findall('dispositiu'):
 						##########################################################
 						#Si l'event no és crític, però té problemes de rendiment o l'event té de component "cachet", ho reflexam a la pàgina.
 						##########################################################
-<<<<<<< HEAD
 						elif (message.text.find("threshold of") > -1 or component.text.find("cachet") > -1) and int(count.text) > 2:
-=======
-                                                elif (message.text.find("threshold of") > -1 or component.text.find("cachet") > -1) and int(count.text) > 2:
->>>>>>> 18fd6026bb489b8960603171a524d1d3683dadcc
 							perfok = 0	
 
-						##########################################################
-						#Si hi ha un scheduling programat ho reflectim també independentment 
-						#de la resta. Si falla, simplement passam.
-						##########################################################
-						#if  int(severity.text) == 2 and component.text != "" and eventClassKey.text != "":
-						#	data_sch = component.text;
-						#	t_data_sch=datetime.strptime(data_sch, "%Y-%m-%d %H:%M")
-						#	if eventClassKey.text == "manteniment":
-						#		maint=1
-						#		maintmsg=message.text
-						#		scheduled_at=t_data_sch.strftime("%d/%m/%Y %H:%M")
-									
 							
 				except Exception as e:
 					if PROD == False:
@@ -255,9 +184,7 @@ for disp in root.findall('dispositiu'):
 		##########################################################
 		# Sincronitzam els Maintenance Windows
                 #########################################################
-		l_sch_zenoss=zp.get_deviceMaintWindows(zp.get_UID(disp.text))
 		try:
-			actualitza_schedule(st,nom,l_sch_zenoss,st.treuLlistaSchedule(nom))
 			actualitza_component(st,id,nom,disp.text,perfok,aixeca)
 		except api_stashboard_panell_v2.CachetResponseError as e:
 			print "Error updating device "+disp.text+ " in private Cachet"
@@ -266,7 +193,6 @@ for disp in root.findall('dispositiu'):
 	
 		try:	
 			if nompublic != "null":
-				actualitza_schedule(st2,nompublic,l_sch_zenoss,st2.treuLlistaSchedule(nompublic))
 				actualitza_component(st2,id2,nompublic,disp.text,perfok,aixeca)
                 except api_stashboard_panell_v2.CachetResponseError as e:
                         print "Error updating device "+disp.text+ " in public Cachet"
