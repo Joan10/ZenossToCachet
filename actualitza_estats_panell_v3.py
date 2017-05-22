@@ -59,7 +59,7 @@ zp=ZenossAPI.ZenossAPI()
 
 
 #DUMPING ET:
-#ET.dump(TREE)
+ET.dump(root)
 
 #
 # Funció que sincronitza els schedules del CachetHQ amb els Maintenance Window.
@@ -129,9 +129,13 @@ def actualitza_component(st, id, nom, znom, perfok, aixeca):
 		if aixeca == 1:
         		if perfok == 0:
                 		if st.getEstatId(id) != "perf":
-					# Cas en que hi ha problemes de rendiment
-					st.ReportaComponent(id)
-					st.ReportaIncident(nom,id,"El servei està experimentant problemes de rendiment.")
+					# Cas en que hi ha problemes de rendiment o de funcionament, pero el servei no esta aturat
+                                        if zp.get_group(znom) == "Commutadors_Edifici":
+						st.ReportaComponent(id, outage=True)
+                                                st.ReportaIncident(nom,id,"La xarxa cablejada està experimentant alguns problemes en aquesta localització.")
+                                        else:
+						st.ReportaComponent(id, outage=False)
+ 						st.ReportaIncident(nom,id,"El servei està experimentant problemes de rendiment.")
         	        else:
                 	        if st.getEstatId(id) != "up":
 					# Cas en que el servei torna a funcionar
@@ -184,6 +188,7 @@ for disp in root.findall('dispositiu'):
 			print "Cachet Privat: "+nom
 			print "Id public: "+str(id2)
 			print "Id privat: "+str(id)
+			print "Id grup: "+str(zp.get_group(disp.text))
 			print "----"
 		if len(disp) > 0:
 			for event in disp.findall('event'):
@@ -212,7 +217,7 @@ for disp in root.findall('dispositiu'):
 						##########################################################
 						#Si l'event no és crític, però té problemes de rendiment, ho reflexam a la pàgina.
 						##########################################################
-						elif message.text.find("threshold of") > -1 and int(count.text) > 2:
+                                                elif (message.text.find("threshold of") > -1 or component.text.find("cachet") > -1) and int(count.text) > 2:
 							perfok = 0	
 
 						##########################################################
