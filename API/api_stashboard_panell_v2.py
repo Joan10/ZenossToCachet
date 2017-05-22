@@ -184,6 +184,12 @@ class api_stashboard_panell:
                     data = json.dumps({"id":id, "status":3})
                 else:
                     data = json.dumps({"id":id, "status":2})
+                append_url="/api/v1/components/"+str(id)
+                r = requests.put(self.base_url+append_url, data=data, headers=self.headers, verify=self.VER)
+                if r.status_code == 200:
+                        return
+                else:
+                        raise CachetResponseError(r.status_code, json.loads(r.text)['errors'][0]['detail'])
 
 
  
