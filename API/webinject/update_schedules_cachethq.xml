@@ -28,7 +28,7 @@
     description2="long description"
     method="post"
     url="http://10.80.87.76:9080/dashboard/schedule/add"
-    postbody="_token={PARSEDRESULT}&incident[visible]=1&incident[name]=Prova&incident[message]=El servei Prova estarÃ  aturat per tasques de manteniment des del dia 07-07-2016 a les 13:25 fins el dia 07-07-2016 a les 14:25.&incident[scheduled_at]=07/07/2016 13:25"
+    postbody="_token={PARSEDRESULT}&incident[visible]=1&incident[name]=Prova&incident[message]=El servei Prova estarÃ  aturat per tasques de manteniment des del dia 23-05-2017 a les 09:00 fins el dia 23-05-2017 a les 09:02.&incident[scheduled_at]=23/05/2017 09:00"
     verifyresponsecode="302"
     logrequest="yes"
     logresponse="yes"

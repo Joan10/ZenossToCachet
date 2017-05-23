@@ -61,18 +61,45 @@ zp=ZenossAPI.ZenossAPI()
 #DUMPING ET:
 #ET.dump(root)
 
+STR_FORMAT="El servei %s estarà aturat per tasques de manteniment des del dia %s a les %s fins el dia %s a les %s."
+
+def actualitza_schedule(st, nomservei, l_sch_zenoss, l_sch_cachet):
+# 
+# Funció que actualitza els events programats del cachet amb les Maintenance Window del Zenoss.
+# 
+        reload(sys) # fuck you python
+        sys.setdefaultencoding("utf-8")
+        # Passam dues llistes d'schedules, la del cachet i la del zenoss, i les comparam.
+        # Si a la llista de zenoss n'hi ha algun que no existeix al cachet, cream l'schedule al cachet
+
+        for z in l_sch_zenoss:
+        # Recorrem la llista d'schedules del zenoss per afegir els que toqui al cachet
+                i=0
+                trobat=False
+                while trobat == False and i<len(l_sch_cachet):
+                # Recorrem la llista del cachet
+                        c=l_sch_cachet[i]
+                        if c["start"] == z["start"] and c["end"] == z["end"]:
+                                trobat=True
+                        i=i+1
+                if trobat == False:
+                        msg=STR_FORMAT % (nomservei, z["start"].strftime("%d-%m-%Y"), z["start"].strftime("%H:%M"), z["end"].strftime("%d-%m-%Y"), z["end"].strftime("%H:%M"))
+                        # Formatejam el missatge i cream l'schedule
+                        st.ReportaSchedule(nomservei,msg,z["start"].strftime("%d/%m/%Y %H:%M"))
+
+
 
 def actualitza_component(st, id, nom, znom, estat):
 # 
 # Funció que actualitza l'estat dels components i incidents del Cachet en funció de tres flags: perfok, aixeca i maint
 # Té en compte els casos en què:
-# 1. Hi ha problemes de rendiment. estat="problemes_rendiment" ; aixeca = 1, perfok = 0
+# 1. Hi ha problemes de rendiment. estat="problemes_rendiment" 
 # 2. Interrupció parcial. estat="interrupcio_parcial"
-# 3. El servei torna a funcionar correctament. estat="aixeca" aixeca = 1, perfok = 1
-# 4. El servei NO funciona. estat="no_funciona" Aixeca = 0, perfok=X
+# 3. El servei torna a funcionar correctament.
+# 4. El servei NO funciona. estat="no_funciona"
 	if estat == "problemes_rendiment":
 		if st.getEstatId(id) != "perf":
-			ReportaComponent(id, outage=False)
+			st.ReportaComponent(id, outage=False)
                         st.ReportaIncident(nom,id,"El servei està experimentant problemes de rendiment.")
 
 	if estat == "interrupcio_parcial":
@@ -100,7 +127,7 @@ for disp in root.findall('dispositiu'):
 
 	estat="aixeca"
 	scheduled_at = ""
-	if (disp.text != "udp.sint.uib.ess" and PROD==False) or (disp.text != "udp.sint.uib.es" and PROD==True):
+	if (disp.text == "udp.sint.uib.es" and PROD==False) or (disp.text != "udp.sint.uib.es" and PROD==True):
 		try:
 			# Parsejam el nom del dispositiu. Aquest anirà contingut dins el camp Comments del Zenoss de la forma següent:
 			# cachet=<nom>;
@@ -158,7 +185,7 @@ for disp in root.findall('dispositiu'):
 						##########################################################
 							estat="no_funciona"
 						##########################################################
-						#Si l'event no és crític, però té problemes de rendiment o l'event té de component "cachet", ho reflexam a la pàgina.
+						#Si l'event no és crític, però té problemes de rendiment o l'event té de missatge unreachable, ho reflexam a la pàgina.
 						##########################################################
 						elif message.text.find("unreachable") > -1 and int(count.text) > 2 and estat != "no_funciona":
 							estat="interrupcio_parcial"
@@ -183,7 +210,9 @@ for disp in root.findall('dispositiu'):
 		##########################################################
 		# Sincronitzam els Maintenance Windows
                 #########################################################
+                l_sch_zenoss=zp.get_deviceMaintWindows(zp.get_UID(disp.text))
 		try:
+                        actualitza_schedule(st,nom,l_sch_zenoss,st.treuLlistaSchedule(nom))
 			actualitza_component(st,id,nom,disp.text,estat)
 		except api_stashboard_panell_v2.CachetResponseError as e:
 			print "Error updating device "+disp.text+ " in private Cachet"
@@ -192,10 +221,9 @@ for disp in root.findall('dispositiu'):
 	
 		try:	
 			if nompublic != "null":
+                                actualitza_schedule(st2,nompublic,l_sch_zenoss,st2.treuLlistaSchedule(nompublic))
 				actualitza_component(st2,id2,nompublic,disp.text,estat)
                 except api_stashboard_panell_v2.CachetResponseError as e:
                         print "Error updating device "+disp.text+ " in public Cachet"
                         print e
 			traceback.print_exc(file=sys.stdout)
-
-

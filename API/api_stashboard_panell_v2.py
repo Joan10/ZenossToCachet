@@ -352,7 +352,6 @@ class api_stashboard_panell:
 	# end_time: datetime
 
                 append_url="/api/v1/incidents"
-		print "TREU ID"
                 r = requests.get(self.base_url+append_url, headers=self.headers, verify=self.VER)
 		if r.status_code != 200:
                 	raise CachetResponseError(r.status_code, json.loads(r.text)['errors'][0]['detail'])
@@ -414,7 +413,6 @@ class api_stashboard_panell:
 
 		ls = {}
 		llista_ls = []
-
                 r = requests.get(self.base_url+append_url, headers=self.headers, verify=self.VER)
                 if r.status_code != 200:
                         raise CachetResponseError(r.status_code, json.loads(r.text)['errors'][0]['detail'])
@@ -454,7 +452,6 @@ class api_stashboard_panell:
                                         raise CachetResponseError(r.status_code, json.loads(r.text)['errors'][0]['detail'])
 
 		except requests.exceptions.MissingSchema as e:
-	         #       print("Error:", e)
 			pass
 			
 		return llista_ls
@@ -463,7 +460,6 @@ class api_stashboard_panell:
 	#Retorna l'estat del servei: up o down.
 		append_url="/api/v1/incidents/"+str(id)
 		r = requests.delete(self.base_url+append_url,  headers=self.headers, verify=self.VER)
-		print r
                 if r.status_code != 204:
 	                raise CachetResponseError(r.status_code, json.loads(r.text)['errors'][0]['detail'])
 

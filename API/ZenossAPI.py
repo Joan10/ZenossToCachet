@@ -160,10 +160,8 @@ class ZenossAPI():
 	mw_list=mw_list_p[23:-2].split(">, <MaintenanceWindow at ")
 	l_mw=[]
 	mw={}
-	
 	if mw_list[0] == '':
 		return []
-	
 	for i in mw_list:
 		try:
 			if self.isMaintWindowActive(i) == "True":

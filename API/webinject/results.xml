@@ -10,7 +10,7 @@
             <verifyresponsecode-message>Passed HTTP Response Code Verification</verifyresponsecode-message>
             <success>true</success>
             <result-message>TEST CASE PASSED</result-message>
-            <responsetime>0.078</responsetime>
+            <responsetime>0.075</responsetime>
         </testcase>
 
         <testcase id="2">
@@ -21,7 +21,7 @@
             <verifyresponsecode-message>Passed HTTP Response Code Verification</verifyresponsecode-message>
             <success>true</success>
             <result-message>TEST CASE PASSED</result-message>
-            <responsetime>0.245</responsetime>
+            <responsetime>0.252</responsetime>
         </testcase>
 
         <testcase id="3">
@@ -32,7 +32,7 @@
             <verifyresponsecode-message>Failed HTTP Response Code Verification (received 500, expecting 302)</verifyresponsecode-message>
             <success>false</success>
             <result-message>TEST CASE FAILED</result-message>
-            <responsetime>0.027</responsetime>
+            <responsetime>0.036</responsetime>
         </testcase>
 
         <testcase id="4">
@@ -43,23 +43,23 @@
             <verifyresponsecode-message>Passed HTTP Response Code Verification</verifyresponsecode-message>
             <success>true</success>
             <result-message>TEST CASE PASSED</result-message>
-            <responsetime>0.029</responsetime>
+            <responsetime>0.046</responsetime>
         </testcase>
 
     
     </testcases>
 
     <test-summary>
-        <start-time>Thu Jul  7 13:09:32 2016</start-time>
-        <total-run-time>0.437</total-run-time>
+        <start-time>Tue May 23 08:56:12 2017</start-time>
+        <total-run-time>0.464</total-run-time>
         <test-cases-run>4</test-cases-run>
         <test-cases-passed>3</test-cases-passed>
         <test-cases-failed>1</test-cases-failed>
         <verifications-passed>3</verifications-passed>
         <verifications-failed>1</verifications-failed>
-        <average-response-time>0.094</average-response-time>
-        <max-response-time>0.245</max-response-time>
-        <min-response-time>0.027</min-response-time>
+        <average-response-time>0.102</average-response-time>
+        <max-response-time>0.252</max-response-time>
+        <min-response-time>0.036</min-response-time>
     </test-summary>
 
 </results>
