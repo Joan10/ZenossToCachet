@@ -1,0 +1,7 @@
+*.pyc
+API/*.pyc
+API/webinject/*.tmp
+API/webinject/http.log
+API/webinject/results.xml
+API/webinject/results.html
+
