@@ -1,5 +1,7 @@
 *.pyc
 API/*.pyc
+API/ZenossAPI.pyc
+API/api_stashboard_panell_v2.pyc
 API/webinject/*.tmp
 API/webinject/http.log
 API/webinject/results.xml
