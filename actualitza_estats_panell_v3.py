@@ -189,7 +189,7 @@ for disp in root.findall('dispositiu'):
 						##########################################################
 						elif message.text.find("unreachable") > -1 and int(count.text) > 2 and estat != "no_funciona":
 							estat="interrupcio_parcial"
-						elif message.text.find("threshold of") > -1 and int(count.text) > 2 and estat != "interrupcio_parcial" and estat != "no_funciona":
+						elif message.text.find("threshold of") > -1 and device_groups_str.find("Commutadors_Edifici") <= -1 and int(count.text) > 2 and estat != "interrupcio_parcial" and estat != "no_funciona":
 							estat="problemes_rendiment"
 
 							
