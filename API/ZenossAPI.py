@@ -78,6 +78,7 @@ class ZenossAPI():
     def get_devices(self, deviceClass='/zport/dmd/Devices'):
         return self._router_request('DeviceRouter', 'getDevices',
                                     data=[{'uid': deviceClass,
+                                           'limit': 200,  # Aquest parametre limita el numero de resultats. IMPORTANT
                                            'params': {} }])['result']
 
     def get_events(self, device=None, component=None, eventClass=None):
