@@ -3,14 +3,18 @@
 import json
 #import schedule
 
+import sys
 import urllib
 import urllib2
+import ssl
+
 from datetime import datetime, time, timedelta
+sys.path.append("/home/stashboard/secrets/")
+from secrets import z6_kiosk_user, z6_kiosk_pass, z6_url
 
-
-ZENOSS_INSTANCE = 'http://192.168.41.40:8080'
-ZENOSS_USERNAME = 'kiosk'
-ZENOSS_PASSWORD = 'kiosk'
+ZENOSS_INSTANCE = z6_url
+ZENOSS_USERNAME = z6_kiosk_user
+ZENOSS_PASSWORD = z6_kiosk_pass
 
 ROUTERS = { 'MessagingRouter': 'messaging',
             'EventsRouter': 'evconsole',
@@ -29,8 +33,13 @@ class ZenossAPI():
         """
         Initialize the API connection, log in, and store authentication cookie
         """
+
         # Use the HTTPCookieProcessor as urllib2 does not save cookies by default
-        self.urlOpener = urllib2.build_opener(urllib2.HTTPCookieProcessor())
+	# ctx = ssl.create_default_context(cafile = '/etc/ssl/certs/zenoss6_sint_uib_es.crt')
+        # Falla la verificacio de la cadena
+
+        ctx=ssl._create_unverified_context()
+        self.urlOpener = urllib2.build_opener(urllib2.HTTPSHandler(context=ctx), urllib2.HTTPCookieProcessor())
         if debug: self.urlOpener.add_handler(urllib2.HTTPHandler(debuglevel=1))
         self.reqCount = 1
 
@@ -65,7 +74,7 @@ class ZenossAPI():
         # Increment the request count ('tid'). More important if sending multiple
         # calls in a single request
         self.reqCount += 1
-
+	print self.urlOpener.open(req, reqData).read()
         # Submit the request and convert the returned JSON to objects
         return json.loads(self.urlOpener.open(req, reqData).read())
 
