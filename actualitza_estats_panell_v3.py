@@ -145,10 +145,9 @@ for disp in root.findall('dispositiu'):
 			nompublic = "null"
 		# No actualitzam el grup, finalment ho feim manualment.
 		id=st.CreaServei(nom, "Dispositiu "+disp.text)
-		
+		id2=""
                 if nompublic != "null":
                         id2=st2.CreaServei(nompublic, "")
-
 		if PROD == False:
 	                reload(sys)
         	        sys.setdefaultencoding("utf-8") # FUCK YOU python
