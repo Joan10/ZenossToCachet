@@ -135,14 +135,16 @@ for disp in root.findall('dispositiu'):
 			nom = zp.get_devicePrivateName(zp.get_UID(disp.text))
 		except Exception as e:
 			nom = disp.text
+			sys.stderr.write(e)
 			# Parsejam el nom públic del dispositiu. 
 			# Aquest anirà contingut dins el camp Comments del Zenoss de la forma següent:
 			# public=<nom>;
 			# Si no el troba posarà el nom "null"
 		try:
 			nompublic = zp.get_devicePublicName(zp.get_UID(disp.text))
-		except:
+		except Exception as e:
 			nompublic = "null"
+			sys.stderr.write(e)
 		# No actualitzam el grup, finalment ho feim manualment.
 		id=st.CreaServei(nom, "Dispositiu "+disp.text)
 		id2=""
@@ -216,7 +218,7 @@ for disp in root.findall('dispositiu'):
 		except api_stashboard_panell_v2.CachetResponseError as e:
 			print "Error updating device "+disp.text+ " in private Cachet"
 			print e
-			traceback.print_exc(file=sys.stdout)
+			traceback.print_exc(file=sys.stderr)
 	
 		try:	
 			if nompublic != "null":
@@ -225,4 +227,4 @@ for disp in root.findall('dispositiu'):
                 except api_stashboard_panell_v2.CachetResponseError as e:
                         print "Error updating device "+disp.text+ " in public Cachet"
                         print e
-			traceback.print_exc(file=sys.stdout)
+			traceback.print_exc(file=sys.stderr)
