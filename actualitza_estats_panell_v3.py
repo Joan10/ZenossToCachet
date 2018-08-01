@@ -135,7 +135,8 @@ for disp in root.findall('dispositiu'):
 			nom = zp.get_devicePrivateName(zp.get_UID(disp.text))
 		except Exception as e:
 			nom = disp.text
-			sys.stderr.write(e)
+			print e
+                        traceback.print_exc(file=sys.stderr)
 			# Parsejam el nom públic del dispositiu. 
 			# Aquest anirà contingut dins el camp Comments del Zenoss de la forma següent:
 			# public=<nom>;
@@ -144,7 +145,9 @@ for disp in root.findall('dispositiu'):
 			nompublic = zp.get_devicePublicName(zp.get_UID(disp.text))
 		except Exception as e:
 			nompublic = "null"
-			sys.stderr.write(e)
+			print e
+                        traceback.print_exc(file=sys.stderr)
+
 		# No actualitzam el grup, finalment ho feim manualment.
 		id=st.CreaServei(nom, "Dispositiu "+disp.text)
 		id2=""
@@ -195,11 +198,10 @@ for disp in root.findall('dispositiu'):
 
 							
 				except Exception as e:
-					if PROD == False:
-						print "Ooops. Error en un event de "+nom
-						print("Exception:", sys.exc_info()[0])
-						print("Error:", e)
-						traceback.print_exc(file=sys.stdout)
+					print "Ooops. Error en un event de "+nom
+					print("Exception:", sys.exc_info()[0])
+					print("Error:", e)
+					traceback.print_exc(file=sys.stderr)
 					pass
 					
 
