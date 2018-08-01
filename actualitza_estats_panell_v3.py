@@ -133,6 +133,10 @@ for disp in root.findall('dispositiu'):
 			# cachet=<nom>;
 			# Si no el troba posarà el nom del Device del Zenoss
 			nom = zp.get_devicePrivateName(zp.get_UID(disp.text))
+                        print "I am under get_devicePrivateName with nom: "+nom
+			print "---"
+			print "---   ---"
+                       
 		except Exception as e:
 			nom = disp.text
 			sys.stderr.write(e)
