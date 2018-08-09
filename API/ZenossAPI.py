@@ -125,9 +125,12 @@ class ZenossAPI():
 			
     def get_devicecomment(self, device_uid):
 	# Se li ha de passar forçosament un uid de Device Class
-        comment=self._router_request('DeviceRouter', 'getInfo',data=[{'uid': device_uid}])['result']['data']['comments']
-        print "I am in get_devicecomment with comentari:" + comment
-        print "---"
+        try:
+		comment=self._router_request('DeviceRouter', 'getInfo',data=[{'uid': device_uid}])['result']['data']['comments']
+	except Exception as e:
+		print "Error gathering comment in get_devicecomment " + device_uid + "... trying again"
+		time.sleep(2)
+		comment=self._router_request('DeviceRouter', 'getInfo',data=[{'uid': device_uid}])['result']['data']['comments']
 	if comment == "":
 		raise Exception("No te cap comentari");
 	else:
