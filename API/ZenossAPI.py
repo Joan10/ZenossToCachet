@@ -142,6 +142,8 @@ class ZenossAPI():
         # Parsejam el nom del dispositiu. Aquest anirà contingut dins el camp Comments del Zenoss de la forma següent:
         # cachet=<nom>;
        comentari=self.get_devicecomment(device_uid_path)
+       print "I am in get_devicePrivateName with comentari:" + comentari
+       print "---"
        offset0=comentari.find("cachet=");
        offset1=comentari.find(";");
        if offset0 > -1 and offset1 > -1:
