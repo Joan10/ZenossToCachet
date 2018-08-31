@@ -7,7 +7,7 @@ import sys
 import urllib
 import urllib2
 import ssl
-import time
+import time as t
 
 from datetime import datetime, time, timedelta
 sys.path.append("/home/stashboard/secrets/")
@@ -130,7 +130,7 @@ class ZenossAPI():
 		comment=self._router_request('DeviceRouter', 'getInfo',data=[{'uid': device_uid}])['result']['data']['comments']
 	except Exception as e:
 		print "Error gathering comment in get_devicecomment " + device_uid + "... trying again"
-		time.sleep(2)
+		t.sleep(2)
 		comment=self._router_request('DeviceRouter', 'getInfo',data=[{'uid': device_uid}])['result']['data']['comments']
 	if comment == "":
 		raise Exception("No te cap comentari");
