@@ -133,7 +133,13 @@ class ZenossAPI():
 		t.sleep(2)
 		comment=self._router_request('DeviceRouter', 'getInfo',data=[{'uid': device_uid}])['result']['data']['comments']
 	if comment == "":
-		raise Exception("No te cap comentari");
+		t.sleep(2)
+		comment=self._router_request('DeviceRouter', 'getInfo',data=[{'uid': device_uid}])['result']['data']['comments']
+                if comment == "":
+                	t.sleep(2)
+	                comment=self._router_request('DeviceRouter', 'getInfo',data=[{'uid': device_uid}])['result']['data']['comments']
+			if comment == "":
+				raise Exception("No te cap comentari");
 	else:
 		return comment
 
