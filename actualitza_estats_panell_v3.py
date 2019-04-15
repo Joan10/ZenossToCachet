@@ -153,7 +153,9 @@ for disp in root.findall('dispositiu'):
                         traceback.print_exc(file=sys.stderr)
 
 		# No actualitzam el grup, finalment ho feim manualment.
-		id=st.CreaServei(nom, "Dispositiu "+disp.text)
+		id=""
+                if nom != "null":
+			id=st.CreaServei(nom, "Dispositiu "+disp.text)
 		id2=""
                 if nompublic != "null":
                         id2=st2.CreaServei(nompublic, "")
@@ -219,8 +221,9 @@ for disp in root.findall('dispositiu'):
                 #########################################################
                 l_sch_zenoss=zp.get_deviceMaintWindows(zp.get_UID(disp.text))
 		try:
-                        actualitza_schedule(st,nom,l_sch_zenoss,st.treuLlistaSchedule(nom))
-			actualitza_component(st,id,nom,disp.text,estat)
+			if nom != "null":
+	                        actualitza_schedule(st,nom,l_sch_zenoss,st.treuLlistaSchedule(nom))
+				actualitza_component(st,id,nom,disp.text,estat)
 		except api_stashboard_panell_v2.CachetResponseError as e:
 			print "Error updating device "+disp.text+ " in private Cachet"
 			print e
