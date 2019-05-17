@@ -126,36 +126,28 @@ class ZenossAPI():
 			
     def get_devicecomment(self, device_uid):
 	# Se li ha de passar forçosament un uid de Device Class
+        comment="no comment"
         try:
 		comment=self._router_request('DeviceRouter', 'getInfo',data=[{'uid': device_uid}])['result']['data']['comments']
 	except Exception as e:
-		print "Error gathering comment in get_devicecomment " + device_uid + "... trying again"
-		t.sleep(2)
-		comment=self._router_request('DeviceRouter', 'getInfo',data=[{'uid': device_uid}])['result']['data']['comments']
-	if comment == "":
-		t.sleep(2)
-		comment=self._router_request('DeviceRouter', 'getInfo',data=[{'uid': device_uid}])['result']['data']['comments']
-                if comment == "":
-                	t.sleep(2)
-	                comment=self._router_request('DeviceRouter', 'getInfo',data=[{'uid': device_uid}])['result']['data']['comments']
-			if comment == "":
-				raise Exception("No te cap comentari");
-	else:
-		return comment
+        	comment="no comment"
+                pass
+		#print "Error gathering comment in get_devicecomment " + device_uid + "comment: " + comment
+	return comment
 
     def get_devicePrivateName(self, device_uid_path):
         # Se li ha de passar forçosament un uid de Device Class amb el path sencer
         # Parsejam el nom del dispositiu. Aquest anirà contingut dins el camp Comments del Zenoss de la forma següent:
         # cachet=<nom>;
        comentari=self.get_devicecomment(device_uid_path)
-       print "I am in get_devicePrivateName with comentari:" + comentari
-       print "---"
+       #print "device uid: "+device_uid_path
+       #print u' '.join(("DEVICEPRIVNAME COMMENT: ",comentari)).encode('utf-8').strip()
        offset0=comentari.find("cachet=");
        offset1=comentari.find(";");
-       if offset0 > -1 and offset1 > -1:
+       if (offset0 > -1 and offset1 > -1) or comentari == "no comment":
                nom=comentari[offset0+7:offset1]
        else:  
-               raise Exception("Comentari al Zenoss mal format. El nom va contingut dins cachet=<nom>;")
+               raise Exception("Comentari al Zenoss mal format a get_devicePrivateName. El nom va contingut dins cachet=<nom>; comentari: "+comentari)
        return nom
 
 
@@ -169,7 +161,7 @@ class ZenossAPI():
         if offset2 > -1 and offset3 > -1:
                 nompublic=comentari[offset2+7:offset3]
         else:
-                raise Exception("Comentari al Zenoss mal format. El nom públic va contingut dins public=<nom>;")
+                raise Exception("Comentari al Zenoss mal format a get_devicePublicName. El nom va contingut dins cachet=<nom>; comentari: "+comentari)
 	return nompublic
 
     def isMaintWindowActive(self,id):
