@@ -128,17 +128,16 @@ for disp in root.findall('dispositiu'):
 	estat="aixeca"
 	scheduled_at = ""
 	if (disp.text == "udp.sint.uib.es" and PROD==False) or (disp.text != "udp.sint.uib.es" and PROD==True):
+                nom = "null"
+                nompublic = "null"
 		try:
 		# Parsejam el nom del dispositiu. Aquest anirà contingut dins el camp Comments del Zenoss de la forma següent:
 		# cachet=<nom>;
 		# Si no el troba posarà el nom del Device del Zenoss
 			nom = zp.get_devicePrivateName(zp.get_UID(disp.text))
-                        print "I am under get_devicePrivateName with nom: "+nom
-			print "---"
-			print "---   ---"
                        
 		except Exception as e:
-			nom = disp.text
+			nom = "null"
 			print e
                         traceback.print_exc(file=sys.stderr)
 		# Parsejam el nom públic del dispositiu. 

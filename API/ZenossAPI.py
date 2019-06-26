@@ -139,6 +139,7 @@ class ZenossAPI():
         # Se li ha de passar forçosament un uid de Device Class amb el path sencer
         # Parsejam el nom del dispositiu. Aquest anirà contingut dins el camp Comments del Zenoss de la forma següent:
         # cachet=<nom>;
+       comentari=""
        comentari=self.get_devicecomment(device_uid_path)
        #print "device uid: "+device_uid_path
        #print u' '.join(("DEVICEPRIVNAME COMMENT: ",comentari)).encode('utf-8').strip()
@@ -155,6 +156,7 @@ class ZenossAPI():
         # Se li ha de passar forçosament un uid de Device Class amb el path sencer
         # Parsejam el nom public del dispositiu. Aquest anirà contingut dins el camp Comments del Zenoss de la forma següent:
         # public=<nom>;
+        comentari=""
         comentari=self.get_devicecomment(device_uid_path)
         offset2=comentari.find("public=");
         offset3=comentari.find(";",offset2+1)
