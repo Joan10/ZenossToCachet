@@ -128,16 +128,15 @@ for disp in root.findall('dispositiu'):
 	estat="aixeca"
 	scheduled_at = ""
 	if (disp.text == "udp.sint.uib.es" and PROD==False) or (disp.text != "udp.sint.uib.es" and PROD==True):
-                nom = "null"
+                nomprivat = "null"
                 nompublic = "null"
 		try:
 		# Parsejam el nom del dispositiu. Aquest anirà contingut dins el camp Comments del Zenoss de la forma següent:
 		# cachet=<nom>;
 		# Si no el troba posarà el nom del Device del Zenoss
-			nom = zp.get_devicePrivateName(zp.get_UID(disp.text))
-                       
+			nomprivat = zp.get_devicePrivateName(zp.get_UID(disp.text))
 		except Exception as e:
-			nom = "null"
+			nomprivat = "null"
 			print e
                         traceback.print_exc(file=sys.stderr)
 		# Parsejam el nom públic del dispositiu. 
@@ -153,8 +152,9 @@ for disp in root.findall('dispositiu'):
 
 		# No actualitzam el grup, finalment ho feim manualment.
 		id=""
-                if nom != "null":
-			id=st.CreaServei(nom, "Dispositiu "+disp.text)
+                print "Nom: "+nomprivat+" Dispositiu: "+disp.text
+                if nomprivat != "null":
+			id=st.CreaServei(nomprivat, "Dispositiu "+disp.text)
 		id2=""
                 if nompublic != "null":
                         id2=st2.CreaServei(nompublic, "")
@@ -165,7 +165,7 @@ for disp in root.findall('dispositiu'):
 			print "----"
 			print "Zenoss: "+disp.text
 			print "Cachet Public: "+nompublic
-			print "Cachet Privat: "+nom
+			print "Cachet Privat: "+nomprivat
 			print "Id public: "+str(id2)
 			print "Id privat: "+str(id)
 			print "Id grup: "+str(zp.get_group(disp.text))
@@ -203,7 +203,7 @@ for disp in root.findall('dispositiu'):
 
 							
 				except Exception as e:
-					print "Ooops. Error en un event de "+nom
+					print "Ooops. Error en un event de "+nomprivat
 					print("Exception:", sys.exc_info()[0])
 					print("Error:", e)
 					traceback.print_exc(file=sys.stderr)
@@ -220,9 +220,9 @@ for disp in root.findall('dispositiu'):
                 #########################################################
                 l_sch_zenoss=zp.get_deviceMaintWindows(zp.get_UID(disp.text))
 		try:
-			if nom != "null":
-	                        actualitza_schedule(st,nom,l_sch_zenoss,st.treuLlistaSchedule(nom))
-				actualitza_component(st,id,nom,disp.text,estat)
+			if nomprivat != "null":
+	                        actualitza_schedule(st,nomprivat,l_sch_zenoss,st.treuLlistaSchedule(nomprivat))
+				actualitza_component(st,id,nomprivat,disp.text,estat)
 		except api_stashboard_panell_v2.CachetResponseError as e:
 			print "Error updating device "+disp.text+ " in private Cachet"
 			print e
